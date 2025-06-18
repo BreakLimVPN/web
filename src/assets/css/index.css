@@ -1,0 +1,36 @@
+body {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Arial', sans-serif;
+    overflow: hidden;
+}
+.char {
+    transition: color 0.3s ease, transform 0.3s ease;
+    font-size: 2.5rem;
+    letter-spacing: 0.5rem;
+    cursor: text;
+}
+.char.filled {
+    color: #00ff88;
+    transform: scale(1.1);
+}
+.glow {
+    text-shadow: 0 0 10px rgba(0, 255, 136, 0.7);
+}
+.vpn-logo {
+    font-size: 4rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    background: linear-gradient(45deg, #00ff88, #00b7ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    }

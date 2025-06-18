@@ -1,0 +1,39 @@
+[tool.poetry]
+name = "web"
+version = "0.0.1"
+description = "Web for BreakLimitVPN"
+authors = ["dx0naclyoo <konyzhenkov.danil@gmail.com>"]
+license = "GNU GPL 3.0"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.13"
+fastapi = {extras = ["all"], version = "^0.115.13"}
+httpx = "^0.28.1"
+asyncpg = "^0.30.0"
+pydantic-settings = "^2.9.1"
+jinja2 = "^3.1.6"
+
+[tool.poetry.group.dev]
+optional = true
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.4.0"
+ruff = "^0.11.13"
+mypy = "^1.16.1"
+pytest-asyncio = "^1.0.0"
+anyio = "^4.9.0"
+
+[tool.poetry.group.docs]
+optional = true
+[tool.poetry.group.docs.dependencies]
+sphinx = "^8.2.3"
+
+[tool.pytest.ini_options]
+testpaths = ["tests/"]
+asyncio_mode = "auto"
+log_level = "INFO"
+pythonpath = ["src"]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
