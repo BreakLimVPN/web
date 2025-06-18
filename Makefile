@@ -4,9 +4,11 @@ start:
 	@fastapi run src/webvpn --reload
 
 silent-start:
-	@fastapi run src/webvpn --reload > /dev/null 2>&1 &
-	@sleep 2
-	@echo "Server Start"
+	@fastapi run src/webvpn --reload > /dev/null 2>&1 & \
+	echo "Server Starting.." && \
+	sleep 1 &&\
+	until curl -s http://localhost:8000/api/health/ > /dev/null 2>&1; do sleep 1; done && \
+	echo "Server Start"
 
 
 stop:

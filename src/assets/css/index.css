@@ -8,14 +8,27 @@ body {
     overflow: hidden;
 }
 .char {
-    transition: color 0.3s ease, transform 0.3s ease;
+    transition: color 0.3s ease, transform 0.3s ease, border 0.3s ease, box-shadow 0.3s ease; /* Добавлен box-shadow для перехода */
     font-size: 2.5rem;
     letter-spacing: 0.5rem;
     cursor: text;
+    color: #666; /* Нейтральный цвет для неактивного состояния */
+    border: 2px solid rgba(255, 255, 255, 0.3); /* Общая обводка */
+    border-radius: 8px; /* Скругление углов */
+    padding: 10px 15px; /* Отступы внутри каждого символа */
+    display: inline-block; /* Чтобы padding работал корректно */
+    min-width: 50px; /* Минимальная ширина для равномерности */
+    text-align: center; /* Выравнивание текста по центру */
 }
 .char.filled {
     color: #00ff88;
     transform: scale(1.1);
+    border-color: #00ff88; /* Цвет обводки при заполнении */
+}
+.char.active { /* Новый класс для активного состояния */
+    border-color: #00b7ff; /* Яркий цвет обводки при активном вводе */
+    box-shadow: 0 0 12px rgba(0, 183, 255, 0.7); /* Более заметная тень для активности */
+    background-color: rgba(0, 183, 255, 0.1); /* Легкий фон при активном состоянии */
 }
 .glow {
     text-shadow: 0 0 10px rgba(0, 255, 136, 0.7);
@@ -33,4 +46,96 @@ input {
     opacity: 0;
     width: 0;
     height: 0;
-    }
+}
+
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgb(95, 95, 95, 0.1); /* Темный полупрозрачный фон */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1; /* Поверх всего */
+}
+
+.popup-content {
+    background-color: rgba(141, 141, 141, 0.1); /* Очень легкий полупрозрачный фон для формы */
+    padding: 20px; /* Уменьшим отступы для большего размера фона */
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+    max-width: 900px; /* Увеличиваем максимальную ширину формы */
+    width: 90%;
+    min-height: 600px; /* Увеличиваем минимальную высоту для большей формы */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* Перемещаем контент вниз */
+    align-items: center;
+    position: relative; /* Для позиционирования кнопки закрытия и фона */
+    overflow: hidden;
+    transform: scale(0.9);
+    opacity: 0;
+    transition: all 0.3s ease-out;
+}
+
+.popup-content.show {
+    transform: scale(1);
+    opacity: 1;
+}
+
+/* Фон изображения без затемнения */
+.popup-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('/static/images/okak.png'); /* Ваш фон без затемнения */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 15px; /* Сохраняем скругление */
+    z-index: -1; /* Помещаем фон под все остальное */
+}
+
+/* Стили для текста сообщения */
+.popup-message,
+.popup-submessage {
+    position: relative;
+    z-index: 2; /* Помещаем текст над оверлеем */
+    color: #9b9a9a;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+    margin: 5px 0; /* Отступы между сообщениями */
+}
+
+.popup-message {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.popup-submessage {
+    font-size: 1.1rem;
+}
+
+/* Стили для кнопки закрытия (крестика) */
+.popup-close-button {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 2rem; /* Размер крестика */
+    color: #ffffff;
+    cursor: pointer;
+    z-index: 10; /* Поверх всего контента попапа */
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+
+.popup-close-button:hover {
+    opacity: 1;
+}

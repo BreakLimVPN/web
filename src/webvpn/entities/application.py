@@ -18,3 +18,7 @@ class HealthResponse:
 @dataclass
 class PongResponse:
     text: str = 'ping-pong'
+
+@dataclass
+class ChechCodeResponse:
+    accepted: bool = True
