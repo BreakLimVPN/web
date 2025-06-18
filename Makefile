@@ -1,5 +1,17 @@
 .PHONY: start stop 
 
+install-prod:
+	python -m pip install --upgrade pip && \
+	pip install poetry && \
+	poetry config virtualenvs.create false && \
+	poetry install --no-root
+
+install-dev:
+	python -m pip install --upgrade pip
+	pip install poetry
+	poetry config virtualenvs.create false
+	poetry install --with dev --no-root
+
 start:
 	@fastapi run src/webvpn --reload
 
