@@ -10,6 +10,12 @@ class Settings(BaseSettings):
     assets_path: Path = src_path / 'assets'
     
     # Database
+    DB_HOST: str = ''
+    DB_PORT: int = 12
+    DB_USERNAME: str = ''
+    DB_PASSWORD: str = ''
+    DATABASE: str = ''
+    DSN: str = 'postgres://turntable.proxy.rlwy.net:55649/railway?user=postgres&password=VccfhorWkZlsriFteBImsqyinjDcNClY'
     
     # Other...
 
