@@ -1,5 +1,11 @@
 .PHONY: start stop 
 
+build:
+	docker build -f docker/Dockerfile -t breaklimvpn .
+
+start-docker:
+	docker run -p 8000:8000 breaklimvpn
+
 install-prod:
 	python -m pip install --upgrade pip && \
 	pip install poetry && \
