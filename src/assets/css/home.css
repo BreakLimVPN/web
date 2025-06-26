@@ -1,0 +1,80 @@
+body {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column; /* Changed to column to stack elements */
+    justify-content: space-between; /* Distribute space */
+    align-items: center;
+    font-family: 'Arial', sans-serif;
+    overflow: hidden;
+    color: white; /* Default text color for the page */
+}
+
+/* Styles for navigation buttons */
+.nav-button {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #00ff88;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: 2px solid rgba(0, 255, 136, 0.3);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.nav-button:hover {
+    background-color: rgba(0, 255, 136, 0.2);
+    border-color: #00ff88;
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
+    transform: translateY(-2px);
+}
+
+/* Styles for server cards */
+.server-card {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(0, 183, 255, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 10px;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 10px rgba(0, 183, 255, 0.1);
+    width: 250px; /* Fixed width for server cards */
+}
+
+.server-card:hover {
+    border-color: #00b7ff;
+    box-shadow: 0 0 20px rgba(0, 183, 255, 0.7);
+    transform: scale(1.03);
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.server-card h3 {
+    color: #00ff88;
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.server-card p {
+    color: #ccc;
+    font-size: 1rem;
+    margin-bottom: 5px;
+}
+
+/* Link style for "Не устраивает локация серверов ?" */
+.location-link {
+    color: #00b7ff;
+    font-size: 1.2rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    margin-bottom: 30px; /* Add some space from the bottom */
+}
+
+.location-link:hover {
+    color: #00ff88;
+    text-shadow: 0 0 8px rgba(0, 255, 136, 0.7);
+    transform: translateY(-2px);
+}
