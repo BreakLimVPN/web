@@ -26,7 +26,7 @@ function VPNLogin() {
         const numericCode = Number(code);
 
         try {
-            const response = await fetch('api/checkCode/', {
+            const response = await fetch('api/check/index-code/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -101,7 +101,7 @@ function VPNLogin() {
                 <div className="popup-overlay" onClick={closePopup}>
                     <div className={`popup-content ${showPopup ? 'show' : ''}`} onClick={e => e.stopPropagation()}>
                         <button className="popup-close-button" onClick={closePopup}>&times;</button>
-                        {/* Текст перемещен вниз */}
+
                         <p className="popup-message">Окак</p>
                         <p className="popup-submessage">Код не принят</p>
                     </div>
