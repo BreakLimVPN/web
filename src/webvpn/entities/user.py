@@ -6,8 +6,12 @@ from uuid import UUID
 
 @dataclass
 class User:
-    uid: UUID
+    uuid: UUID
     username: str
+
+@dataclass
+class FullUser(User):
+    hash_password: str
 
 @dataclass
 class CreateUser(User):

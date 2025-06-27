@@ -10,3 +10,4 @@ from webvpn.repositories.postgres.database import pg_session
 
 PGConnectionDepends = Annotated[Connection, Depends(pg_session)]
 VerifyToken = Annotated[str | None, Cookie()]
+SessionToken = Annotated[str | None, Cookie()]

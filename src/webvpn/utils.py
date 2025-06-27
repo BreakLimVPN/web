@@ -1,3 +1,6 @@
+import secrets
+
+from passlib.hash import bcrypt
 from webvpn.entities.application import ApplicationResponse, ContentType
 from fastapi.templating import Jinja2Templates
 from webvpn.settings.base import settings
@@ -11,3 +14,11 @@ def response(data: ContentType) -> ApplicationResponse[ContentType]:
 
 def generate_uuid() -> UUID:
     return uuid4()
+
+
+def generate_session():
+    return secrets.token_urlsafe(32)
+
+
+def hash_password(password) -> str:
+    return bcrypt.hash(password)
