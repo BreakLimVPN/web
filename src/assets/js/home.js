@@ -3,8 +3,40 @@ function HomePage() {
     const [isLoadingServers, setIsLoadingServers] = React.useState(true);
     const [isNavigating, setIsNavigating] = React.useState(false);
     const [loadingNavButton, setLoadingNavButton] = React.useState('');
+    const [isTokenValidated, setIsTokenValidated] = React.useState(false);
 
     React.useEffect(() => {
+        const checkTokenValidity = async () => {
+            try {
+                const response = await fetch('/api/check/verify-token', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({})
+                });
+
+                if (!response.ok) {
+                    console.log('Initial check: token invalid or missing, redirecting to /');
+                    window.location.href = '/';
+                    return false;
+                }
+
+                const data = await response.json();
+                if (!data.content?.accepted) {
+                    console.log('Initial check: server reported token invalid, redirecting to /');
+                    window.location.href = '/';
+                    return false;
+                }
+                console.log('Initial check: token is valid.');
+                return true;
+            } catch (error) {
+                console.error('Error during initial token check:', error);
+                window.location.href = '/';
+                return false;
+            }
+        };
+
         const fetchServers = async () => {
             setIsLoadingServers(true);
             try {
@@ -46,7 +78,7 @@ function HomePage() {
                 }
 
                 const data = await response.json();
-                if (!data.content.accepted) {
+                if (!data.content?.accepted) {
                     console.log('Periodic check: server reported token invalid, redirecting to /');
                     window.location.href = '/';
                     return;
@@ -58,7 +90,17 @@ function HomePage() {
             }
         };
 
-        fetchServers();
+        // Сначала проверяем токен, затем загружаем серверы
+        const initializePage = async () => {
+            const tokenValid = await checkTokenValidity();
+            if (tokenValid) {
+                setIsTokenValidated(true);
+                fetchServers();
+            }
+        };
+
+        initializePage();
+        
         const intervalId = setInterval(checkTokenValidityPeriodically, 30000);
         return () => clearInterval(intervalId);
     }, []);
@@ -91,7 +133,7 @@ function HomePage() {
         alert('Transitioning to server location selection or contacts page...');
     };
 
-    if (isLoadingServers) {
+    if (!isTokenValidated || isLoadingServers) {
         return (
             <div className="loading-container">
                 <div className="loading-spinner"></div>
@@ -100,7 +142,7 @@ function HomePage() {
                     <div className="loading-dot"></div>
                     <div className="loading-dot"></div>
                 </div>
-                <div className="loading-text">Загрузка серверов...</div>
+                <div className="loading-text">{!isTokenValidated ? 'Проверка токена...' : 'Загрузка серверов...'}</div>
             </div>
         );
     }
