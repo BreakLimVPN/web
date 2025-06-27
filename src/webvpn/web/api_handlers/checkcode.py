@@ -31,7 +31,6 @@ async def check_code(checkcode_body: CheckCodeRequest, rsp: Response):
     response_model=ApplicationResponse[ChechCodeResponse]
 )
 async def check_verify_token(verify_token: Annotated[str | None, Cookie()] = None):
-    print(verify_token)
     if not verify_token:
         raise HTTPException(status_code=401, detail="Verify not found")
     

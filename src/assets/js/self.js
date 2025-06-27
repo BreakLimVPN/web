@@ -161,36 +161,31 @@ function SelfPage() {
         try {
             const endpoint = isLoginMode ? '/api/auth/login/' : '/api/auth/register/';
             let response;
-            if (isLoginMode) {
-                // Логин — по-прежнему JSON
-                const payload = {
-                    username: formData.username,
-                    password: formData.password
-                };
-                response = await fetch(endpoint, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(payload)
-                });
-            } else {
-                // Регистрация — отправляем form-data
-                const form = new FormData();
-                form.append('username', formData.username);
-                form.append('password', formData.password);
-                response = await fetch(endpoint, {
-                    method: 'POST',
-                    body: form
-                });
-            }
+            // Теперь и логин, и регистрация отправляют form-data
+            const form = new FormData();
+            form.append('username', formData.username);
+            form.append('password', formData.password);
+            response = await fetch(endpoint, {
+                method: 'POST',
+                body: form
+            });
 
             const data = await response.json();
 
             if (response.ok && data.ok) {
                 window.location.reload();
             } else {
-                setError(data.message || 'Произошла ошибка');
+                let errorMsg = 'Произошла ошибка';
+                if (data.detail) {
+                    if (typeof data.detail === 'string') {
+                        errorMsg = data.detail;
+                    } else if (Array.isArray(data.detail)) {
+                        errorMsg = data.detail.map(e => e.msg).join('\n');
+                    }
+                } else if (data.message) {
+                    errorMsg = data.message;
+                }
+                setError(errorMsg);
             }
         } catch (error) {
             console.error('Auth error:', error);
@@ -267,7 +262,11 @@ function SelfPage() {
                                     <div className="form-subtitle">Добро пожаловать обратно</div>
                                 </div>
 
-                                {error && <div className="error-message">{error}</div>}
+                                {error && (
+                                    <div className="error-message" style={{ whiteSpace: 'pre-line', border: '1.5px solid #ff4444', background: 'rgba(255,68,68,0.08)', color: '#ff4444', borderRadius: '8px', padding: '12px', marginBottom: '16px', fontSize: '15px', fontWeight: 500 }}>
+                                        {error}
+                                    </div>
+                                )}
 
                                 <form onSubmit={handleSubmit}>
                                     <div className="input-group">
@@ -360,7 +359,11 @@ function SelfPage() {
                                     <div className="form-subtitle">Создайте новый аккаунт</div>
                                 </div>
 
-                                {error && <div className="error-message">{error}</div>}
+                                {error && (
+                                    <div className="error-message" style={{ whiteSpace: 'pre-line', border: '1.5px solid #ff4444', background: 'rgba(255,68,68,0.08)', color: '#ff4444', borderRadius: '8px', padding: '12px', marginBottom: '16px', fontSize: '15px', fontWeight: 500 }}>
+                                        {error}
+                                    </div>
+                                )}
 
                                 <form onSubmit={handleSubmit}>
                                     <div className="input-group">
