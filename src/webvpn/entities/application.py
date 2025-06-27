@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Generic, TypeVar
 
-ContentType = TypeVar('ContentType')
+ContentType = TypeVar("ContentType")
 
 
 @dataclass
@@ -15,9 +15,11 @@ class HealthResponse:
     server_ok: bool = True
     database_ok: bool = True
 
+
 @dataclass
 class PongResponse:
-    text: str = 'ping-pong'
+    text: str = "ping-pong"
+
 
 @dataclass
 class ChechCodeResponse:

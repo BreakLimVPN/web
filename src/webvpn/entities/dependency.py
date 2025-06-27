@@ -1,5 +1,3 @@
-
-
 from typing import Annotated
 
 from asyncpg import Connection

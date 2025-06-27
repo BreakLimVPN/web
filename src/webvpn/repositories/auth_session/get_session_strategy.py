@@ -7,7 +7,7 @@ class GetSessionStrategy(ABC):
     def __init__(self, identifier):
         self.identifier = identifier
         pass
-    
+
     @abstractmethod
     def query(self) -> str:
         pass
