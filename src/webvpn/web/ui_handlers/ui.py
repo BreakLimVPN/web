@@ -5,30 +5,21 @@ from webvpn.utils import templates
 ui_rt = APIRouter()
 
 
-@ui_rt.get(
-    '/',
-    response_class=HTMLResponse
-)
+@ui_rt.get("/", response_class=HTMLResponse)
 async def index(request: Request):
-    return templates.TemplateResponse(request=request, name='index.html')
+    return templates.TemplateResponse(request=request, name="index.html")
 
-@ui_rt.get(
-    '/home/',
-    response_class=HTMLResponse
-)
+
+@ui_rt.get("/home/", response_class=HTMLResponse)
 async def home(request: Request):
-    return templates.TemplateResponse(request=request, name='home.html')
+    return templates.TemplateResponse(request=request, name="home.html")
 
-@ui_rt.get(
-    '/dashboard/',
-    response_class=HTMLResponse
-)
+
+@ui_rt.get("/dashboard/", response_class=HTMLResponse)
 async def dashboard(request: Request):
-    return templates.TemplateResponse(request=request, name='dashboard.html')
+    return templates.TemplateResponse(request=request, name="dashboard.html")
 
-@ui_rt.get(
-    '/self/',
-    response_class=HTMLResponse
-)
+
+@ui_rt.get("/self/", response_class=HTMLResponse)
 async def self(request: Request):
-    return templates.TemplateResponse(request=request, name='self.html')
+    return templates.TemplateResponse(request=request, name="self.html")

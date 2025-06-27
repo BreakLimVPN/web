@@ -8,6 +8,7 @@ from uuid import uuid4, UUID
 
 templates = Jinja2Templates(directory=settings.templates_path)
 
+
 def response(data: ContentType) -> ApplicationResponse[ContentType]:
     return ApplicationResponse(content=data)
 
