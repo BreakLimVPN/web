@@ -1,5 +1,5 @@
 function SelfPage() {
-    const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+    const [isLoggedIn, setIsLoggedIn] = React.useState(null);
     const [isLoading, setIsLoading] = React.useState(true);
     const [userInfo, setUserInfo] = React.useState(null);
     const [isLoginMode, setIsLoginMode] = React.useState(true);
@@ -15,6 +15,66 @@ function SelfPage() {
     const [isTokenValidated, setIsTokenValidated] = React.useState(false);
 
     React.useEffect(() => {
+        const checkTokenValidity = async () => {
+            try {
+                const response = await fetch('/api/check/verify-token/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({})
+                });
+
+                if (!response.ok) {
+                    console.log('Initial check: token invalid or missing, redirecting to /');
+                    window.location.href = '/';
+                    return false;
+                }
+
+                const data = await response.json();
+                if (!data.content?.accepted) {
+                    console.log('Initial check: server reported token invalid, redirecting to /');
+                    window.location.href = '/';
+                    return false;
+                }
+                console.log('Initial check: token is valid.');
+                return true;
+            } catch (error) {
+                console.error('Error during initial token check:', error);
+                window.location.href = '/';
+                return false;
+            }
+        };
+
+        const checkTokenValidityPeriodically = async () => {
+            try {
+                const response = await fetch('/api/check/verify-token/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({})
+                });
+
+                if (!response.ok) {
+                    console.log('Periodic check: token invalid or missing, redirecting to /');
+                    window.location.href = '/';
+                    return;
+                }
+
+                const data = await response.json();
+                if (!data.content?.accepted) {
+                    console.log('Periodic check: server reported token invalid, redirecting to /');
+                    window.location.href = '/';
+                    return;
+                }
+                console.log('Periodic check: token is valid.');
+            } catch (error) {
+                console.error('Error during periodic token check:', error);
+                window.location.href = '/';
+            }
+        };
+
         const checkUserSession = async () => {
             try {
                 const cookies = document.cookie.split(';');
@@ -48,78 +108,13 @@ function SelfPage() {
             }
         };
 
-        const checkTokenValidity = async () => {
-            try {
-                const response = await fetch('/api/check/verify-token', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({})
-                });
-
-                if (!response.ok) {
-                    console.log('Initial check: token invalid or missing, redirecting to /');
-                    window.location.href = '/';
-                    return false;
-                }
-
-                const data = await response.json();
-                if (!data.content?.accepted) {
-                    console.log('Initial check: server reported token invalid, redirecting to /');
-                    window.location.href = '/';
-                    return false;
-                }
-                console.log('Initial check: token is valid.');
-                return true;
-            } catch (error) {
-                console.error('Error during initial token check:', error);
-                window.location.href = '/';
-                return false;
-            }
-        };
-
-        const checkTokenValidityPeriodically = async () => {
-            try {
-                const response = await fetch('/api/check/verify-token', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({})
-                });
-
-                if (!response.ok) {
-                    console.log('Periodic check: token invalid or missing, redirecting to /');
-                    window.location.href = '/';
-                    return;
-                }
-
-                const data = await response.json();
-                if (!data.content?.accepted) {
-                    console.log('Periodic check: server reported token invalid, redirecting to /');
-                    window.location.href = '/';
-                    return;
-                }
-                console.log('Periodic check: token is valid.');
-            } catch (error) {
-                console.error('Error during periodic token check:', error);
-                window.location.href = '/';
-            }
-        };
-
         const initializePage = async () => {
-            await checkUserSession();
-            
-            // Если пользователь авторизован, проверяем токен
-            if (isLoggedIn) {
-                const tokenValid = await checkTokenValidity();
-                if (tokenValid) {
-                    setIsTokenValidated(true);
-                }
-            } else {
-                // Если пользователь не авторизован, не проверяем токен
+            // Сначала проверяем токен
+            const tokenValid = await checkTokenValidity();
+            if (tokenValid) {
                 setIsTokenValidated(true);
+                // Проверяем сессию пользователя только если токен валиден
+                await checkUserSession();
             }
         };
 
@@ -128,7 +123,7 @@ function SelfPage() {
         // Устанавливаем периодическую проверку токена каждые 30 секунд
         const intervalId = setInterval(checkTokenValidityPeriodically, 30000);
         return () => clearInterval(intervalId);
-    }, [isLoggedIn]);
+    }, []);
 
     const handleNavigation = (page) => {
         switch(page) {
@@ -164,7 +159,7 @@ function SelfPage() {
         }
 
         try {
-            const endpoint = isLoginMode ? '/api/auth/login' : '/api/auth/register';
+            const endpoint = isLoginMode ? '/api/auth/login/' : '/api/auth/register/';
             const payload = {
                 username: formData.username,
                 password: formData.password
@@ -195,7 +190,7 @@ function SelfPage() {
 
     const handleLogout = async () => {
         try {
-            await fetch('/api/auth/logout', { method: 'POST' });
+            await fetch('/api/auth/logout/', { method: 'POST' });
             document.cookie = 'bvpn_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
             window.location.reload();
         } catch (error) {
@@ -203,10 +198,16 @@ function SelfPage() {
         }
     };
 
-    if (isLoading || !isTokenValidated) {
+    if (isLoading || !isTokenValidated || isLoggedIn === null) {
         return (
             <div className="loading-container">
-                <div className="text-white text-2xl">{isLoading ? 'Загрузка...' : 'Проверка токена...'}</div>
+                <div className="loading-spinner"></div>
+                <div className="loading-dots">
+                    <div className="loading-dot"></div>
+                    <div className="loading-dot"></div>
+                    <div className="loading-dot"></div>
+                </div>
+                <div className="loading-text">{isLoading ? 'Загрузка...' : !isTokenValidated ? 'Проверка токена...' : 'Проверка авторизации...'}</div>
             </div>
         );
     }
@@ -221,23 +222,28 @@ function SelfPage() {
 
             <div className="flex-1 flex items-center justify-center w-full">
                 {isLoggedIn ? (
-                    <div className="text-center fade-in">
-                        <h1 className="text-4xl font-bold text-green-400 mb-8">Профиль пользователя</h1>
-
-                        <div className="user-info-card">
-                            <h3>Информация об аккаунте</h3>
-                            <p>Имя пользователя: <span className="user-value">{userInfo?.username || 'N/A'}</span></p>
-                            <p>ID: <span className="user-value">{userInfo?.id || 'N/A'}</span></p>
-                            <p>VPN клиенты: <span className="user-value">{userInfo?.vpn_clients_count || 0}</span></p>
+                    <div className="user-profile-outer">
+                        <div className="user-profile-card">
+                            <div className="user-profile-header">
+                                <div className="user-profile-avatar">
+                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#00ff88" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M16 20v-2a4 4 0 0 0-8 0v2"/></svg>
+                                </div>
+                                <div className="user-profile-title">Профиль</div>
+                            </div>
+                            <div className="user-profile-info">
+                                <div className="user-profile-row">
+                                    <span className="user-profile-label">Имя пользователя:</span>
+                                    <span className="user-profile-value">{userInfo?.username || 'N/A'}</span>
+                                </div>
+                            </div>
+                            <button 
+                                onClick={handleLogout}
+                                className="form-button user-profile-logout"
+                                style={{ background: 'linear-gradient(90deg, rgba(255,68,68,0.15), rgba(255,68,68,0.25))', borderColor: '#ff4444', color: '#ff4444', marginTop: '32px' }}
+                            >
+                                Выйти
+                            </button>
                         </div>
-
-                        <button 
-                            onClick={handleLogout}
-                            className="form-button mt-6 max-w-xs"
-                            style={{ backgroundColor: 'rgba(255, 68, 68, 0.2)', borderColor: 'rgba(255, 68, 68, 0.5)', color: '#ff4444' }}
-                        >
-                            Выйти
-                        </button>
                     </div>
                 ) : (
                     <div className="auth-slider-container">
