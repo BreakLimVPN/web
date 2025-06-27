@@ -8,7 +8,7 @@ function HomePage() {
     React.useEffect(() => {
         const checkTokenValidity = async () => {
             try {
-                const response = await fetch('/api/check/verify-token', {
+                const response = await fetch('/api/check/verify-token/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -63,7 +63,7 @@ function HomePage() {
 
         const checkTokenValidityPeriodically = async () => {
             try {
-                const response = await fetch('/api/check/verify-token', {
+                const response = await fetch('/api/check/verify-token/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

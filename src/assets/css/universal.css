@@ -610,3 +610,132 @@ body {
 .auth-form.active {
     animation: slideIn 0.5s ease-out;
 }
+
+/* --- User Profile Futuristic Card --- */
+.user-profile-outer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+    min-height: 60vh;
+    margin-top: 40px;
+    margin-bottom: 40px;
+}
+
+.user-profile-card {
+    background: linear-gradient(120deg, rgba(0,255,136,0.10) 0%, rgba(0,183,255,0.10) 100%);
+    /* border: 2.5px solid rgba(0,255,136,0.25); */
+    border: none;
+    border-radius: 18px;
+    box-shadow: 0 0 18px 0 rgba(0,255,136,0.08), 0 2px 24px 0 rgba(0,183,255,0.10);
+    padding: 38px 44px 32px 44px;
+    min-width: 340px;
+    max-width: 420px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: box-shadow 0.3s;
+    position: relative;
+    z-index: 2;
+}
+
+.user-profile-card:hover {
+    /* box-shadow: 0 0 48px 0 #00ff88, 0 2px 48px 0 #00b7ff; */
+    box-shadow: 0 0 28px 0 rgba(0,255,136,0.13), 0 2px 32px 0 rgba(0,183,255,0.13);
+    /* border-color: #00ff88; */
+}
+
+.user-profile-header {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 24px;
+}
+
+.user-profile-avatar {
+    background: linear-gradient(135deg, rgba(0,255,136,0.18), rgba(0,183,255,0.18));
+    border-radius: 12px;
+    padding: 10px;
+    box-shadow: 0 0 16px 0 rgba(0,255,136,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.user-profile-title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #00ff88;
+    letter-spacing: 1px;
+    text-shadow: 0 0 16px rgba(0,255,136,0.25);
+}
+
+.user-profile-info {
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.user-profile-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 18px 0 0 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(0,255,136,0.10);
+}
+
+.user-profile-label {
+    color: #00b7ff;
+    font-size: 1.08rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+.user-profile-value {
+    color: #fff;
+    font-size: 1.08rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.user-profile-value.uid {
+    color: #00b7ff;
+    font-family: 'Fira Mono', 'Consolas', 'Menlo', monospace;
+    font-size: 1.01rem;
+    background: rgba(0,183,255,0.08);
+    border-radius: 6px;
+    padding: 4px 12px;
+    box-shadow: 0 0 8px 0 rgba(0,183,255,0.10);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+}
+
+.user-profile-value.uid svg {
+    margin: 0;
+    vertical-align: middle;
+    display: inline-block;
+}
+
+.user-profile-logout {
+    margin-top: 32px;
+    font-size: 1.08rem;
+    border-radius: 10px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    box-shadow: 0 0 16px 0 rgba(255,68,68,0.10);
+    transition: box-shadow 0.3s, background 0.3s, color 0.3s;
+}
+
+.user-profile-logout:hover {
+    background: linear-gradient(90deg, rgba(255,68,68,0.25), rgba(255,68,68,0.35));
+    color: #fff;
+    box-shadow: 0 0 32px 0 #ff4444;
+    border-color: #ff4444;
+}
