@@ -21,6 +21,9 @@ install-dev:
 start:
 	@fastapi run src/webvpn --reload
 
+start-dev:
+	@fastapi dev src/webvpn --reload
+
 silent-start:
 	@fastapi run src/webvpn --reload > /dev/null 2>&1 & \
 	echo "Server Starting.." && \
