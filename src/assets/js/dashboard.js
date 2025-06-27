@@ -1,8 +1,40 @@
 function DashboardPage() {
     const [isNavigating, setIsNavigating] = React.useState(false);
     const [loadingNavButton, setLoadingNavButton] = React.useState('');
+    const [isTokenValidated, setIsTokenValidated] = React.useState(false);
 
     React.useEffect(() => {
+        const checkTokenValidity = async () => {
+            try {
+                const response = await fetch('/api/check/verify-token', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({})
+                });
+
+                if (!response.ok) {
+                    console.log('Initial check: token invalid or missing, redirecting to /');
+                    window.location.href = '/';
+                    return false;
+                }
+
+                const data = await response.json();
+                if (!data.content?.accepted) {
+                    console.log('Initial check: server reported token invalid, redirecting to /');
+                    window.location.href = '/';
+                    return false;
+                }
+                console.log('Initial check: token is valid.');
+                return true;
+            } catch (error) {
+                console.error('Error during initial token check:', error);
+                window.location.href = '/';
+                return false;
+            }
+        };
+
         const checkTokenValidityPeriodically = async () => {
             try {
                 const response = await fetch('/api/check/verify-token', {
@@ -32,9 +64,34 @@ function DashboardPage() {
             }
         };
 
+        // Проверяем токен при загрузке страницы
+        const initializePage = async () => {
+            const tokenValid = await checkTokenValidity();
+            if (tokenValid) {
+                setIsTokenValidated(true);
+            }
+        };
+
+        initializePage();
+        
+        // Устанавливаем периодическую проверку каждые 30 секунд
         const intervalId = setInterval(checkTokenValidityPeriodically, 30000);
         return () => clearInterval(intervalId);
     }, []);
+
+    if (!isTokenValidated) {
+        return (
+            <div className="loading-container">
+                <div className="loading-spinner"></div>
+                <div className="loading-dots">
+                    <div className="loading-dot"></div>
+                    <div className="loading-dot"></div>
+                    <div className="loading-dot"></div>
+                </div>
+                <div className="loading-text">Проверка токена...</div>
+            </div>
+        );
+    }
 
     const handleNavigation = (page) => {
         if (isNavigating) return;
