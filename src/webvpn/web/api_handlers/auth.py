@@ -1,5 +1,5 @@
 
-from fastapi import APIRouter, Response
+from fastapi import APIRouter, Form, Response
 
 from webvpn.entities.application import ApplicationResponse
 from webvpn.entities.dependency import PGConnectionDepends
@@ -14,11 +14,20 @@ auth_rt = APIRouter(prefix='/auth', tags=['Auth'])
     '/register/',
     response_model=ApplicationResponse[User]
 )
-async def register_user(username, password, connect: PGConnectionDepends) -> ApplicationResponse[User]:
+async def register_user(
+    rsp: Response,
+    connect: PGConnectionDepends,
+    username: str = Form(...),
+    password: str = Form(...)
+) -> ApplicationResponse[User]:
     user: User = await UserRepo.create(
         username=username,
         password=password,
         connect=connect,
+    )
+    rsp.set_cookie(
+        'bvpn_session',
+        'bvpn_session123'
     )
     return response(user)
 

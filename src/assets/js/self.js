@@ -160,18 +160,30 @@ function SelfPage() {
 
         try {
             const endpoint = isLoginMode ? '/api/auth/login/' : '/api/auth/register/';
-            const payload = {
-                username: formData.username,
-                password: formData.password
-            };
-
-            const response = await fetch(endpoint, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload)
-            });
+            let response;
+            if (isLoginMode) {
+                // Логин — по-прежнему JSON
+                const payload = {
+                    username: formData.username,
+                    password: formData.password
+                };
+                response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload)
+                });
+            } else {
+                // Регистрация — отправляем form-data
+                const form = new FormData();
+                form.append('username', formData.username);
+                form.append('password', formData.password);
+                response = await fetch(endpoint, {
+                    method: 'POST',
+                    body: form
+                });
+            }
 
             const data = await response.json();
 
