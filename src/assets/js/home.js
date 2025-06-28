@@ -4,6 +4,7 @@ function HomePage() {
     const [isNavigating, setIsNavigating] = React.useState(false);
     const [loadingNavButton, setLoadingNavButton] = React.useState('');
     const [isTokenValidated, setIsTokenValidated] = React.useState(false);
+    const [selectedServer, setSelectedServer] = React.useState(null);
 
     React.useEffect(() => {
         const checkTokenValidity = async () => {
@@ -47,8 +48,9 @@ function HomePage() {
                     return;
                 }
                 const data = await response.json();
-                if (data.ok && data.content && Array.isArray(data.content.vpn_servers)) {
-                    setServers(data.content.vpn_servers);
+                console.log('API Response:', data); // Для отладки
+                if (data.ok && data.content && Array.isArray(data.content)) {
+                    setServers(data.content);
                 } else {
                     console.error('Unexpected API response structure:', data);
                     setServers([]);
@@ -90,7 +92,6 @@ function HomePage() {
             }
         };
 
-        // Сначала проверяем токен, затем загружаем серверы
         const initializePage = async () => {
             const tokenValid = await checkTokenValidity();
             if (tokenValid) {
@@ -106,19 +107,17 @@ function HomePage() {
     }, []);
 
     const handleNavigation = (page) => {
-        if (isNavigating) return; // Prevent multiple clicks
+        if (isNavigating) return;
         
         setIsNavigating(true);
         setLoadingNavButton(page);
         
-        // Add a small delay to show the loading animation
         setTimeout(() => {
             switch(page) {
                 case 'dashboard':
                     window.location.href = '/dashboard/';
                     break;
                 case 'servers':
-                    // Остаемся на текущей странице или редирект на /home/
                     window.location.href = '/home/';
                     break;
                 case 'account':
@@ -133,86 +132,222 @@ function HomePage() {
         alert('Transitioning to server location selection or contacts page...');
     };
 
+    const handleServerGoTo = (serverId) => {
+        window.location.href = `/servers/${serverId}/`;
+    };
+
     if (!isTokenValidated || isLoadingServers) {
-        return (
-            <div className="loading-container">
-                <div className="loading-spinner"></div>
-                <div className="loading-dots">
-                    <div className="loading-dot"></div>
-                    <div className="loading-dot"></div>
-                    <div className="loading-dot"></div>
-                </div>
-                <div className="loading-text">{!isTokenValidated ? 'Проверка токена...' : 'Загрузка серверов...'}</div>
-            </div>
-        );
+        return React.createElement('div', {
+            className: 'loading-container'
+        }, [
+            React.createElement('div', {
+                key: 'spinner',
+                className: 'loading-spinner'
+            }),
+            React.createElement('div', {
+                key: 'text',
+                className: 'loading-text'
+            }, !isTokenValidated ? 'Проверка токена...' : 'Загрузка серверов...')
+        ]);
     }
 
-    return (
-        <div className="page-content">
-            {/* Page Transition Overlay */}
-            <div className={`page-transition-overlay ${isNavigating ? 'active' : ''}`}>
-                <div>
-                    <div className="loading-spinner"></div>
-                    <div className="loading-dots">
-                        <div className="loading-dot"></div>
-                        <div className="loading-dot"></div>
-                        <div className="loading-dot"></div>
-                    </div>
-                    <div className="loading-text">Переход на страницу...</div>
-                </div>
-            </div>
+    return React.createElement('div', {
+        className: 'page-content',
+        style: {
+            minHeight: '100vh',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            padding: '32px 20px'
+        }
+    }, [
+        // Page Transition Overlay
+        React.createElement('div', {
+            key: 'overlay',
+            className: `page-transition-overlay ${isNavigating ? 'active' : ''}`,
+        }, React.createElement('div', null, [
+            React.createElement('div', {
+                key: 'spinner',
+                className: 'loading-spinner'
+            }),
+            React.createElement('div', {
+                key: 'text',
+                className: 'loading-text'
+            }, 'Переход на страницу...')
+        ])),
 
-            <div className="flex flex-col items-center justify-between min-h-screen p-8">
-                {/* Top Navigation */}
-                <div className="flex justify-center space-x-6 w-full mt-8">
-                    <button 
-                        className={`nav-button ${loadingNavButton === 'dashboard' ? 'loading' : ''}`}
-                        onClick={() => handleNavigation('dashboard')}
-                        disabled={isNavigating}
-                    >
-                        Dashboard
-                    </button>
-                    <button 
-                        className={`nav-button active ${loadingNavButton === 'servers' ? 'loading' : ''}`}
-                        onClick={() => handleNavigation('servers')}
-                        disabled={isNavigating}
-                    >
-                        Servers
-                    </button>
-                    <button 
-                        className={`nav-button ${loadingNavButton === 'account' ? 'loading' : ''}`}
-                        onClick={() => handleNavigation('account')}
-                        disabled={isNavigating}
-                    >
-                        Account
-                    </button>
-                </div>
+        // Navigation
+        React.createElement('nav', {
+            key: 'nav',
+            style: {
+                display: 'flex',
+                justifyContent: 'center',
+                gap: '24px',
+                marginBottom: '64px'
+            }
+        }, ['dashboard', 'servers', 'account'].map(page => 
+            React.createElement('button', {
+                key: page,
+                onClick: () => handleNavigation(page),
+                disabled: isNavigating,
+                className: `nav-button ${page === 'servers' ? 'active' : ''} ${loadingNavButton === page ? 'loading' : ''}`,
+                style: {
+                    opacity: isNavigating && loadingNavButton !== page ? 0.5 : 1
+                }
+            }, page.charAt(0).toUpperCase() + page.slice(1))
+        )),
 
-                {/* Central Server Display */}
-                <div className="flex flex-wrap justify-center my-auto">
-                    {servers.length > 0 ? (
-                        servers.map(server => (
-                            <div key={server.id} className="server-card">
-                                <h3>{server.name}</h3>
-                                <p>Location: {server.location}</p>
-                                <p>Provider: {server.provider}</p>
-                                <p>Status: <span className={server.status === 'Online' ? 'text-green-500' : 'text-red-500'}>{server.status}</span></p>
-                            </div>
-                        ))
-                    ) : (
-                        <p className="text-gray-400 text-lg">No servers available.</p>
-                    )}
-                </div>
+        // Server Grid
+        React.createElement('div', {
+            key: 'servers',
+            style: {
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '100%',
+                maxWidth: '1200px'
+            }
+        }, servers.length > 0 ? 
+            React.createElement('div', {
+                style: {
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    justifyContent: 'center',
+                    gap: '24px',
+                    width: '100%'
+                }
+            }, servers.map(server => 
+                React.createElement('div', {
+                    key: server.id,
+                    className: 'server-card',
+                    style: {
+                        width: '280px',
+                        minHeight: '320px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between'
+                    }
+                }, [
+                    // Server Flag
+                    React.createElement('div', {
+                        key: 'flag',
+                        style: {
+                            display: 'flex',
+                            justifyContent: 'center',
+                            marginBottom: '16px'
+                        }
+                    }, React.createElement('img', {
+                        src: server.image_url,
+                        alt: server.server_location + ' flag',
+                        style: {
+                            width: '48px',
+                            height: '36px',
+                            objectFit: 'cover',
+                            borderRadius: '6px',
+                            border: '2px solid rgba(255, 255, 255, 0.2)'
+                        },
+                        onError: (e) => {
+                            e.target.style.display = 'none';
+                        }
+                    })),
 
-                {/* Bottom Link */}
-                <div className="text-center">
-                    <a href="#" onClick={handleLocationLinkClick} className="location-link">
-                        Не устраивает локация серверов ?
-                    </a>
-                </div>
-            </div>
-        </div>
-    );
+                    // Server Name
+                    React.createElement('h3', {
+                        key: 'name',
+                        style: {
+                            marginBottom: '12px',
+                        }
+                    }, server.name),
+
+                    // Server Details
+                    React.createElement('div', {
+                        key: 'details',
+                        style: { marginBottom: '16px', fontSize: '14px', flex: 1 }
+                    }, [
+                        React.createElement('p', {
+                            key: 'location',
+                            style: { margin: '6px 0' }
+                        }, `Location: ${server.server_location}`),
+                        React.createElement('p', {
+                            key: 'provider',
+                            style: { margin: '6px 0' }
+                        }, `Provider: ${server.provider}`),
+                        React.createElement('p', {
+                            key: 'bandwidth',
+                            style: { color: '#00b7ff', margin: '6px 0' }
+                        }, `Bandwidth: ${server.networks_bandwidth} Mbps`),
+                        React.createElement('p', {
+                            key: 'status',
+                            style: { margin: '6px 0' }
+                        }, [
+                            'Status: ',
+                            React.createElement('span', {
+                                key: 'status-text',
+                                style: { 
+                                    color: server.status === 'Online' ? '#22c55e' : '#ef4444',
+                                    fontWeight: 'bold'
+                                }
+                            }, server.status)
+                        ]),
+                        React.createElement('p', {
+                            key: 'ip',
+                            style: { color: '#ccc', margin: '6px 0', fontSize: '12px', fontFamily: 'monospace' }
+                        }, `IP: ${server.ipv4}`)
+                    ]),
+
+                    // Go To Button
+                    React.createElement('button', {
+                        key: 'goto',
+                        onClick: () => handleServerGoTo(server.id),
+                        className: 'form-button',
+                        style: {
+                            marginTop: 'auto',
+                            opacity: server.status === 'Online' ? 1 : 0.5,
+                            cursor: server.status === 'Online' ? 'pointer' : 'not-allowed',
+                        },
+                        disabled: server.status !== 'Online'
+                    }, server.status === 'Online' ? 'Перейти' : 'Offline')
+                ])
+            )) : 
+            React.createElement('div', {
+                className: 'loading-container'
+            }, [
+                React.createElement('div', {
+                    key: 'icon',
+                    style: {
+                        width: '96px',
+                        height: '96px',
+                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        margin: '0 auto 24px',
+                        fontSize: '48px',
+                        color: '#666'
+                    }
+                }, '🖥️'),
+                React.createElement('p', {
+                    key: 'text',
+                    style: { color: '#666', fontSize: '20px' }
+                }, 'No servers available.')
+            ])
+        ),
+
+        // Bottom Link
+        React.createElement('div', {
+            key: 'bottom',
+            style: {
+                textAlign: 'center',
+                marginTop: '64px'
+            }
+        }, React.createElement('a', {
+            href: '#',
+            onClick: handleLocationLinkClick,
+            className: 'location-link'
+        }, 'Не устраивает локация серверов ?'))
+    ]);
 }
 
-ReactDOM.render(<HomePage />, document.getElementById('root'));
+ReactDOM.render(React.createElement(HomePage), document.getElementById('root'));

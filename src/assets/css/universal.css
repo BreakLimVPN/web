@@ -221,8 +221,11 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 50vh;
+    min-height: 100vh;
     flex-direction: column;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%);
+    color: white;
+    text-align: center;
 }
 
 .error-message {
@@ -272,6 +275,7 @@ body {
     border-top: 4px solid #00b7ff;
     border-radius: 50%;
     animation: spin 1s linear infinite;
+    margin-bottom: 20px;
 }
 
 @keyframes spin {
@@ -313,8 +317,8 @@ body {
 .loading-text {
     color: #00b7ff;
     font-size: 1.2rem;
-    margin-top: 20px;
     animation: glow 2s ease-in-out infinite alternate;
+    margin: 0;
 }
 
 @keyframes glow {

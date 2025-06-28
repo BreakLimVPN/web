@@ -23,3 +23,8 @@ async def dashboard(request: Request):
 @ui_rt.get("/self/", response_class=HTMLResponse)
 async def self(request: Request):
     return templates.TemplateResponse(request=request, name="self.html")
+
+
+@ui_rt.get("/servers/{id}/", response_class=HTMLResponse)
+async def server(request: Request, id:int):
+    return templates.TemplateResponse(request=request, name="server.html", context={'server_id': id})
