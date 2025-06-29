@@ -13,5 +13,7 @@ def vpn_servers_list_mapper(records: list[Record]) -> list[VpnServer]:
         )
     return output
 
-def vpn_server_mapper(record: list[Record]) -> VpnServer:
+def vpn_server_mapper(record: list[Record]) -> VpnServer | None:
+    if not record:
+        return None
     return VpnServer(**dict(record[0]))
