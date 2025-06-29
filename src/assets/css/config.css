@@ -1,0 +1,820 @@
+/* Config Page Styles - Consistent with other pages */
+.config-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%);
+    color: white;
+    padding: 0;
+}
+
+.config-header {
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 24px 0;
+    backdrop-filter: blur(10px);
+}
+
+.config-header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.config-title-section {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: nowrap;
+    min-width: 0;
+    flex-shrink: 0;
+}
+
+.config-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #00ff88;
+    text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 300px;
+    flex-shrink: 1;
+}
+
+.config-subtitle {
+    font-size: 0.9rem;
+    color: #00b7ff;
+    margin: 0;
+    font-weight: 500;
+    opacity: 0.8;
+}
+
+.config-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+}
+
+.config-btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+}
+
+.config-btn.primary {
+    background: linear-gradient(135deg, #00ff88, #00b7ff);
+    color: #000;
+    box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
+}
+
+.config-btn.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 255, 136, 0.5);
+}
+
+.config-btn.secondary {
+    background: rgba(255, 255, 255, 0.05);
+    color: #00b7ff;
+    border: 1px solid rgba(0, 183, 255, 0.3);
+}
+
+.config-btn.secondary:hover {
+    background: rgba(0, 183, 255, 0.1);
+    border-color: #00b7ff;
+    transform: translateY(-2px);
+}
+
+.config-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* Main Content */
+.config-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 0;
+    width: 100%;
+}
+
+.config-grid {
+    display: flex;
+    gap: 32px;
+    margin-bottom: 40px;
+    align-items: stretch;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 24px;
+}
+
+/* Server Info Card - REMOVED */
+
+/* Config Creation Card */
+.config-creation-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(0, 183, 255, 0.2);
+    border-radius: 8px;
+    padding: 24px;
+    backdrop-filter: blur(5px);
+    transition: border-color 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    min-height: 600px;
+    overflow: hidden;
+    width: 50%;
+    margin: 0;
+    flex: 1;
+}
+
+.config-creation-card:hover {
+    border-color: rgba(0, 183, 255, 0.4);
+}
+
+.card-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #00b7ff;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
+}
+
+/* Special styling for the last form-group (buttons container) */
+.form-group:last-child {
+    margin-top: auto;
+    flex-shrink: 0;
+    margin-bottom: 0;
+}
+
+.form-label {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.form-input {
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(0, 183, 255, 0.2);
+    border-radius: 6px;
+    color: white;
+    font-size: 14px;
+    transition: border-color 0.2s ease;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #00b7ff;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.form-input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.form-select {
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(0, 183, 255, 0.2);
+    border-radius: 6px;
+    color: white;
+    font-size: 14px;
+    transition: border-color 0.2s ease;
+    cursor: pointer;
+}
+
+.form-select:focus {
+    outline: none;
+    border-color: #00b7ff;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.form-select option {
+    background: #2c2c2c;
+    color: white;
+}
+
+/* Config Preview Section */
+.config-preview-section {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(0, 183, 255, 0.2);
+    border-radius: 8px;
+    padding: 24px;
+    backdrop-filter: blur(5px);
+    transition: border-color 0.2s ease;
+    margin-top: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    width: 50%;
+    margin: 0;
+    height: 600px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+.config-preview-section:hover {
+    border-color: rgba(0, 183, 255, 0.4);
+}
+
+.preview-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #00b7ff;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.config-preview {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(0, 183, 255, 0.15);
+    border-radius: 6px;
+    padding: 16px;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.9);
+    max-height: 400px !important;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 183, 255, 0.3) transparent;
+    flex: 1;
+    position: relative;
+}
+
+.config-preview::-webkit-scrollbar {
+    width: 6px;
+}
+
+.config-preview::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.config-preview::-webkit-scrollbar-thumb {
+    background: rgba(0, 183, 255, 0.3);
+    border-radius: 3px;
+}
+
+.config-preview::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 183, 255, 0.5);
+}
+
+.config-preview.empty {
+    color: rgba(255, 255, 255, 0.3);
+    font-style: italic;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 14px;
+    background: rgba(0, 0, 0, 0.1);
+    border: 1px dashed rgba(0, 183, 255, 0.2);
+}
+
+/* Enhanced Button Styles */
+.config-btn.primary:disabled {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.4);
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.config-btn.primary:disabled:hover {
+    transform: none !important;
+    box-shadow: none;
+}
+
+/* Buttons Container with proper spacing */
+.buttons-container {
+    display: flex;
+    gap: 12px;
+    align-items: stretch;
+    margin-top: auto;
+    padding: 16px 0 0 0;
+    flex-shrink: 0;
+}
+
+.main-action-btn {
+    flex: 1;
+    background: linear-gradient(135deg, #00ff88, #00b7ff);
+    color: #000;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.main-action-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 255, 136, 0.3);
+}
+
+.main-action-btn:disabled {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.4);
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.switch-mode-btn {
+    background: rgba(255, 255, 255, 0.05);
+    color: #00b7ff;
+    border: 1px solid rgba(0, 183, 255, 0.2);
+    border-radius: 6px;
+    min-width: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.switch-mode-btn:hover:not(:disabled) {
+    background: rgba(0, 183, 255, 0.1);
+    border-color: #00b7ff;
+    transform: translateY(-1px);
+}
+
+.switch-mode-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none;
+}
+
+.switch-icon {
+    font-size: 14px;
+}
+
+.switch-text {
+    font-weight: 500;
+}
+
+/* Config Selector */
+.config-selector {
+    padding: 12px;
+    margin-bottom: 16px;
+    background: rgba(0, 183, 255, 0.03);
+    border: 1px solid rgba(0, 183, 255, 0.15);
+    border-radius: 6px;
+    flex-shrink: 0;
+}
+
+/* Config Slider Container */
+.config-slider-container {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.config-form-wrapper {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0;
+    visibility: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+}
+
+.config-form-wrapper.active {
+    opacity: 1;
+    visibility: visible;
+    position: relative;
+    transform: translateX(0);
+}
+
+.config-form-wrapper.inactive {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-100%);
+    pointer-events: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .config-header-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+        padding: 0 16px;
+    }
+    
+    .config-title-section {
+        flex-direction: row;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+        min-width: 0;
+    }
+    
+    .server-flag {
+        width: 40px;
+        height: 30px;
+        flex-shrink: 0;
+    }
+    
+    .config-title {
+        font-size: 1.5rem;
+        max-width: 200px;
+        min-width: 0;
+        flex-shrink: 1;
+    }
+    
+    .config-subtitle {
+        font-size: 1.5rem;
+    }
+    
+    .config-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .config-btn {
+        padding: 8px 16px;
+        font-size: 13px;
+    }
+    
+    .config-grid {
+        flex-direction: column;
+        gap: 20px;
+        max-width: 100%;
+        margin: 0 16px 40px 16px;
+    }
+    
+    .config-content {
+        padding: 20px 0;
+    }
+    
+    .config-creation-card,
+    .config-preview-section {
+        padding: 20px;
+        min-height: 450px;
+        width: 100%;
+        margin: 0;
+        height: auto;
+        flex: none;
+    }
+    
+    .card-title,
+    .preview-title {
+        font-size: 1.1rem;
+    }
+    
+    .config-form {
+        gap: 12px;
+        min-height: 300px;
+    }
+    
+    .form-input,
+    .form-select {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+    
+    .config-preview {
+        font-size: 12px;
+        padding: 16px;
+        max-height: 300px !important;
+        line-height: 1.5;
+    }
+    
+    .config-preview.empty {
+        font-size: 14px;
+        padding: 20px;
+    }
+    
+    .preview-title {
+        font-size: 1.2rem;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+    }
+    
+    .preview-title span {
+        font-size: 1.3rem;
+    }
+    
+    /* Mobile Notification Styles */
+    .notification {
+        top: 5px !important;
+        right: 5px !important;
+        left: 5px !important;
+        max-width: none !important;
+        font-size: 12px !important;
+        padding: 10px 14px !important;
+    }
+    
+    /* Mobile Buttons Container */
+    .buttons-container {
+        gap: 12px;
+        padding: 12px 0 0 0;
+    }
+    
+    .switch-mode-btn {
+        min-width: 80px;
+        font-size: 13px;
+        padding: 12px 16px;
+    }
+    
+    .switch-text {
+        display: none;
+    }
+    
+    /* Mobile Config Selector */
+    .config-selector {
+        padding: 10px;
+        margin-bottom: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .config-header {
+        padding: 16px 0;
+    }
+    
+    .config-header-content {
+        padding: 0 12px;
+    }
+    
+    .config-title-section {
+        gap: 10px;
+    }
+    
+    .server-flag {
+        width: 36px;
+        height: 27px;
+    }
+    
+    .config-title {
+        font-size: 1.3rem;
+        max-width: 150px;
+        flex-shrink: 1;
+    }
+    
+    .config-subtitle {
+        font-size: 1.3rem;
+    }
+    
+    .server-status-badge {
+        padding: 4px 8px;
+        gap: 6px;
+    }
+    
+    .status-text {
+        font-size: 12px;
+    }
+    
+    .config-actions {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .config-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .config-content {
+        padding: 16px 12px;
+    }
+    
+    .config-creation-card,
+    .config-preview-section {
+        padding: 16px;
+        min-height: 400px;
+        max-width: 100%;
+        margin: 0;
+        height: auto;
+    }
+    
+    .card-title,
+    .preview-title {
+        font-size: 1.1rem;
+    }
+    
+    .section-title {
+        font-size: 1.1rem;
+        margin-bottom: 12px;
+        padding-bottom: 10px;
+    }
+    
+    .form-input,
+    .form-select {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+    
+    .config-preview {
+        font-size: 12px;
+        padding: 16px;
+        max-height: 300px !important;
+        line-height: 1.5;
+    }
+    
+    .config-preview.empty {
+        font-size: 14px;
+        padding: 20px;
+    }
+    
+    .preview-title {
+        font-size: 1.2rem;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+    }
+    
+    .preview-title span {
+        font-size: 1.3rem;
+    }
+    
+    /* Small Mobile Notification Styles */
+    .notification {
+        top: 5px !important;
+        right: 5px !important;
+        left: 5px !important;
+        padding: 10px 14px !important;
+        font-size: 12px !important;
+        border-radius: 8px !important;
+    }
+    
+    /* Small Mobile Buttons Container */
+    .buttons-container {
+        gap: 8px;
+        padding: 10px 0 0 0;
+    }
+    
+    .switch-mode-btn {
+        min-width: 60px;
+        font-size: 12px;
+        padding: 10px 12px;
+    }
+    
+    /* Small Mobile Config Selector */
+    .config-selector {
+        padding: 10px;
+        margin-bottom: 12px;
+    }
+}
+
+/* Server Info in Header */
+.server-flag {
+    width: 48px;
+    height: 36px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    flex-shrink: 0;
+}
+
+.server-status-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+    flex-shrink: 0;
+}
+
+.status-dot.online {
+    background: #00ff88;
+    box-shadow: 0 0 8px rgba(0, 255, 136, 0.6);
+}
+
+.status-dot.offline {
+    background: #ff6b6b;
+    box-shadow: 0 0 8px rgba(255, 107, 107, 0.6);
+}
+
+.status-text {
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.card-title,
+.preview-title {
+    font-size: 1.1rem;
+}
+
+.section-title {
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+}
+
+.config-form {
+    gap: 12px;
+}
+
+/* Loading Animation */
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+/* Spinner Animation */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Notification Animations */
+@keyframes slideInRight {
+    0% {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Notification Styles */
+.notification {
+    transition: all 0.2s ease;
+}
+
+.notification:hover {
+    transform: translateY(-1px);
+}
+
+.notification.notification-error {
+    border-left: 3px solid #ff3b30;
+}
+
+.notification.notification-success {
+    border-left: 3px solid #00ff88;
+}
+
+/* Config Form */
+.config-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    flex: 1;
+    padding-bottom: 0;
+    min-height: 300px;
+    justify-content: flex-start;
+}

@@ -28,3 +28,8 @@ async def self(request: Request):
 @ui_rt.get("/servers/{id}/", response_class=HTMLResponse)
 async def server(request: Request, id:int):
     return templates.TemplateResponse(request=request, name="server.html", context={'server_id': id})
+
+
+@ui_rt.get("/servers/{id}/config/", response_class=HTMLResponse)
+async def config(request: Request, id:int):
+    return templates.TemplateResponse(request=request, name="config.html", context={'server_id': id})

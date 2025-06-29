@@ -2,7 +2,6 @@ function ServerPage() {
     const [server, setServer] = React.useState(null);
     const [isLoading, setIsLoading] = React.useState(true);
     const [error, setError] = React.useState(null);
-    const [isDownloadingConfig, setIsDownloadingConfig] = React.useState(false);
     const [isTokenValidated, setIsTokenValidated] = React.useState(false);
     const [isUserAuthorized, setIsUserAuthorized] = React.useState(false);
     const [isNavigating, setIsNavigating] = React.useState(false);
@@ -396,48 +395,21 @@ function ServerPage() {
         
         // Устанавливаем интервалы
         intervalsRef.current.tokenCheck = setInterval(checkTokenValidityPeriodically, 30000);
-        intervalsRef.current.clientData = setInterval(fetchClientData, 3000);
+        intervalsRef.current.clientData = setInterval(fetchClientData, 1500);
         
         return clearAllIntervals;
     }, [serverId]);
 
-    const handleDownloadConfig = async () => {
-        if (!server || server.status !== 'Online' || !isUserAuthorized) return;
-        
-        setIsDownloadingConfig(true);
+    const handleCreateConfig = () => {
+        if (!server || !isUserAuthorized) return;
         
         // Add haptic feedback for mobile devices
         if ('vibrate' in navigator) {
             navigator.vibrate(100);
         }
         
-        try {
-            const response = await fetch(`/api/servers/config/?id=${serverId}`, {
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json' }
-            });
-
-            if (!response.ok) {
-                throw new Error('Не удалось получить конфигурацию сервера');
-            }
-
-            const configData = await response.blob();
-            const url = window.URL.createObjectURL(configData);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `${server.name || 'server'}_config.ovpn`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            window.URL.revokeObjectURL(url);
-            
-            console.log('Конфигурация успешно скачана');
-        } catch (error) {
-            console.error('Ошибка при скачивании конфигурации:', error);
-            setError('Не удалось скачать конфигурацию сервера');
-        } finally {
-            setIsDownloadingConfig(false);
-        }
+        // Переход на страницу создания конфига
+        window.location.href = `/servers/${serverId}/config`;
     };
 
     const handleNavigation = (page) => {
@@ -580,15 +552,12 @@ function ServerPage() {
                 React.createElement('div', { key: 'actions', className: 'server-actions' }, [
                     React.createElement('button', {
                         key: 'download',
-                        onClick: handleDownloadConfig,
-                        disabled: server.status !== 'Online' || isDownloadingConfig || !isUserAuthorized,
+                        onClick: handleCreateConfig,
+                        disabled: server.status !== 'Online' || !isUserAuthorized,
                         className: 'server-btn primary'
-                    }, isDownloadingConfig ? [
-                        React.createElement('div', { key: 'spinner', className: 'button-spinner' }),
-                        'Скачивание...'
-                    ] : [
-                        React.createElement('span', { key: 'icon' }, '📥'),
-                        'Скачать конфиг'
+                    }, [
+                        React.createElement('span', { key: 'icon' }, '⚙️'),
+                        'Создать Конфиг'
                     ]),
                     React.createElement('a', {
                         key: 'back',
