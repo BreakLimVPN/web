@@ -15,8 +15,6 @@ def config_mapper(record: list[Record]) -> VpnConfig | None:
 
 def config_list_mapper(record: list[Record]) -> list[VpnConfig] | None:
     output: list[VpnConfig] = []
-    print(record)
-    print(record.__dir__())
     if not record:
         return None
     for config in record:

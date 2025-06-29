@@ -67,11 +67,11 @@ async def create_vpn_client(user: UserDepends, client_name: str, server_id: int,
         raise HTTPException(status_code=400, detail=f'Ошибка при создание конфига для сервера - {server_id}')
     
     clients_response = httpx.get(url, cookies={'connect.sid': connect_sid})
-    client = find_client(client_name=client_name, clients_json=clients_response.json())
+    client: VpnServerClient | None = find_client(client_name=client_name, clients_json=clients_response.json())
     if not client:
         raise HTTPException(status_code=400, detail=f'Ошибка при создание конфига для сервера - {server_id}')
     config_id = await ConfigRepo.create(
-        server_id=server_id, user_uuid=user.uuid, config_uuid=client.user_id, connect=connect
+        server_id=server_id, user_uuid=user.uuid, config_uuid=client.user_id, connect=connect, config_name=client_name, config_enabled=client.enabled
     )
     if not config_id:
         raise HTTPException(status_code=400, detail=f'Ошибка при создание конфига для сервера - {server_id}')

@@ -13,6 +13,15 @@ function SelfPage() {
     const [showPassword, setShowPassword] = React.useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
     const [isTokenValidated, setIsTokenValidated] = React.useState(false);
+    
+    // Новые состояния для конфигов
+    const [configs, setConfigs] = React.useState([]);
+    const [isLoadingConfigs, setIsLoadingConfigs] = React.useState(false);
+    const [configError, setConfigError] = React.useState('');
+    const [showQRModal, setShowQRModal] = React.useState(false);
+    const [selectedConfigForQR, setSelectedConfigForQR] = React.useState(null);
+    const [isDownloading, setIsDownloading] = React.useState(false);
+    const [isDeleting, setIsDeleting] = React.useState(false);
 
     React.useEffect(() => {
         const checkTokenValidity = async () => {
@@ -94,6 +103,8 @@ function SelfPage() {
                     if (data.ok && data.content) {
                         setUserInfo(data.content);
                         setIsLoggedIn(true);
+                        // Загружаем конфиги после успешной авторизации
+                        await fetchUserConfigs();
                     } else {
                         setIsLoggedIn(false);
                     }
@@ -205,6 +216,117 @@ function SelfPage() {
         }
     };
 
+    // Функция для загрузки конфигов пользователя
+    const fetchUserConfigs = async () => {
+        setIsLoadingConfigs(true);
+        setConfigError('');
+        
+        try {
+            const response = await fetch('/api/configs/');
+            if (response.ok) {
+                const data = await response.json();
+                if (data.ok && data.content) {
+                    setConfigs(data.content);
+                } else {
+                    setConfigs([]);
+                }
+            } else {
+                setConfigs([]);
+            }
+        } catch (error) {
+            console.error('Error fetching configs:', error);
+            setConfigError('Ошибка загрузки конфигов');
+            setConfigs([]);
+        } finally {
+            setIsLoadingConfigs(false);
+        }
+    };
+
+    // Функция для скачивания конфига
+    const handleDownloadConfig = async (configId) => {
+        setIsDownloading(true);
+        try {
+            const response = await fetch(`/api/configs/${configId}/download/`);
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `config_${configId}.conf`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            } else {
+                setConfigError('Ошибка скачивания конфига');
+            }
+        } catch (error) {
+            console.error('Error downloading config:', error);
+            setConfigError('Ошибка скачивания конфига');
+        } finally {
+            setIsDownloading(false);
+        }
+    };
+
+    // Функция для удаления конфига
+    const handleDeleteConfig = async (configId) => {
+        if (!confirm('Вы уверены, что хотите удалить этот конфиг?')) {
+            return;
+        }
+        
+        setIsDeleting(true);
+        try {
+            const response = await fetch(`/api/configs/${configId}/`, {
+                method: 'DELETE'
+            });
+            if (response.ok) {
+                // Обновляем список конфигов
+                await fetchUserConfigs();
+            } else {
+                setConfigError('Ошибка удаления конфига');
+            }
+        } catch (error) {
+            console.error('Error deleting config:', error);
+            setConfigError('Ошибка удаления конфига');
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
+    // Функция для показа QR-кода
+    const handleShowQR = async (config) => {
+        setSelectedConfigForQR(config);
+        setShowQRModal(true);
+        
+        try {
+            const response = await fetch(`/api/configs/${config.id}/qr/`);
+            if (response.ok) {
+                const blob = await response.blob();
+                const imageUrl = URL.createObjectURL(blob);
+                
+                // Обновляем состояние с URL изображения
+                setSelectedConfigForQR({
+                    ...config,
+                    qrImageUrl: imageUrl
+                });
+            } else {
+                console.error('Error fetching QR code');
+            }
+        } catch (error) {
+            console.error('Error fetching QR code:', error);
+        }
+    };
+
+    // Функция для закрытия QR-модала
+    const closeQRModal = () => {
+        // Очищаем URL изображения при закрытии
+        if (selectedConfigForQR?.qrImageUrl) {
+            URL.revokeObjectURL(selectedConfigForQR.qrImageUrl);
+        }
+        setShowQRModal(false);
+        setSelectedConfigForQR(null);
+    };
+
     if (isLoading || !isTokenValidated || isLoggedIn === null) {
         return (
             <div className="loading-container">
@@ -243,6 +365,84 @@ function SelfPage() {
                                     <span className="user-profile-value">{userInfo?.username || 'N/A'}</span>
                                 </div>
                             </div>
+                            
+                            {/* Секция конфигов */}
+                            <div className="configs-section">
+                                <div className="configs-header">
+                                    <h3 className="configs-title">Мои конфиги</h3>
+                                    {isLoadingConfigs && <div className="configs-loading">Загрузка...</div>}
+                                </div>
+                                
+                                {configError && (
+                                    <div className="config-error">{configError}</div>
+                                )}
+                                
+                                {configs.length === 0 && !isLoadingConfigs ? (
+                                    <div className="configs-empty">
+                                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                            <polyline points="14,2 14,8 20,8"/>
+                                            <line x1="16" y1="13" x2="8" y2="13"/>
+                                            <line x1="16" y1="17" x2="8" y2="17"/>
+                                            <polyline points="10,9 9,9 8,9"/>
+                                        </svg>
+                                        <span>У вас пока нет конфигов</span>
+                                    </div>
+                                ) : (
+                                    <div className="configs-list">
+                                        {configs.map((config) => (
+                                            <div key={config.id} className="config-item">
+                                                <div className="config-info">
+                                                    <div className="config-name">
+                                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                                            <polyline points="14,2 14,8 20,8"/>
+                                                        </svg>
+                                                        <span>Конфиг #{config.id}</span>
+                                                    </div>
+                                                    <div className="config-details">
+                                                        <span className="config-date">
+                                                            Создан: {new Date(config.created_at).toLocaleDateString('ru-RU')}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div className="config-actions">
+                                                    <button
+                                                        className="config-action-btn download-btn"
+                                                        onClick={() => handleDownloadConfig(config.id)}
+                                                        disabled={isDownloading}
+                                                        title="Скачать конфиг"
+                                                    >
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-5 h-5">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                        </svg>
+                                                    </button>
+                                                    <button
+                                                        className="config-action-btn delete-btn"
+                                                        onClick={() => handleDeleteConfig(config.id)}
+                                                        disabled={isDeleting}
+                                                        title="Удалить конфиг"
+                                                    >
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-5 h-5">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                        </svg>
+                                                    </button>
+                                                    <button
+                                                        className="config-action-btn qr-btn"
+                                                        onClick={() => handleShowQR(config)}
+                                                        title="Показать QR-код"
+                                                    >
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-5 h-5">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                            
                             <button 
                                 onClick={handleLogout}
                                 className="form-button user-profile-logout"
@@ -485,6 +685,37 @@ function SelfPage() {
                     </div>
                 )}
             </div>
+            
+            {/* QR Modal */}
+            {showQRModal && selectedConfigForQR && (
+                <div className="qr-modal-overlay" onClick={closeQRModal}>
+                    <div className="qr-modal" onClick={(e) => e.stopPropagation()}>
+                        <div className="qr-modal-header">
+                            <h3>QR-код конфига #{selectedConfigForQR.id}</h3>
+                            <button className="qr-modal-close" onClick={closeQRModal}>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-6 h-6">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div className="qr-modal-content">
+                            {selectedConfigForQR.qrImageUrl ? (
+                                <div className="qr-placeholder">
+                                    <img src={selectedConfigForQR.qrImageUrl} alt="QR-код" />
+                                </div>
+                            ) : (
+                                <div className="qr-placeholder">
+                                    <svg width="200" height="200" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                                    </svg>
+                                    <p>Загрузка QR-кода...</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+            
             <div></div>
         </div>
     );

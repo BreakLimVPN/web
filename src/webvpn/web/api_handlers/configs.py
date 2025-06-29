@@ -11,12 +11,12 @@ from webvpn.repositories.configs.get_configs_strategy import GetConfigsByUserUUI
 from webvpn.utils import response
 
 
-config_rt = APIRouter(prefix='/config', tags=["VpnConfig"])
+config_rt = APIRouter(prefix='/configs', tags=["VpnConfig"])
 
 
 @config_rt.get('/', response_model=ApplicationResponse[list[VpnConfig]])
 async def get(user: UserDepends, connect: PGConnectionDepends):
-    configs: list[VpnConfig] | None = await ConfigRepo.get(
+    configs: list[VpnConfig] = await ConfigRepo.get(
         GetConfigsByUserUUID(user.uuid),
         connect,
         config_list_mapper
