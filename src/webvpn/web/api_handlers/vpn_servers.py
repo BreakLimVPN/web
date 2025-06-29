@@ -2,16 +2,31 @@ import httpx
 from fastapi import APIRouter, HTTPException
 from webvpn.entities.application import ApplicationResponse
 from webvpn.entities.vpn_servers import VpnServer, VpnServerClient
+from webvpn.repositories.configs.configs import ConfigRepo
 from webvpn.repositories.vpn_servers.servers import VPNServerRepo
 from webvpn.repositories.vpn_servers.strategy import GetVpnServerByIdStrategy
 from webvpn.utils import response
-from webvpn.entities.dependency import PGConnectionDepends
+from webvpn.entities.dependency import PGConnectionDepends, UserDepends
 import os
 from dotenv import load_dotenv
 
 
 load_dotenv()
 vpn_servers_rt = APIRouter(prefix='/servers', tags=["VpnServer"])
+
+def find_client(client_name: str, clients_json: list[dict]) -> VpnServerClient | None:
+    for client in clients_json:
+        if client['name'] == client_name:
+            return VpnServerClient(
+                latestHandshakeAt = client['latestHandshakeAt'],
+                transferRx = client['transferRx'],
+                transferTx = client['transferTx'],
+                createdAt = client['createdAt'],
+                updatedAt = client['updatedAt'],
+                enabled = client['enabled'],
+                user_id = client['id'],
+            )
+    return None
 
 
 @vpn_servers_rt.get("/", response_model=ApplicationResponse[list[VpnServer]])
@@ -21,7 +36,7 @@ async def get_all_servers(connect: PGConnectionDepends):
 
 
 @vpn_servers_rt.get("/{server_id}/", response_model=ApplicationResponse[VpnServer])
-async def get_server_by_id(server_id: int, connect: PGConnectionDepends):
+async def get_server_by_id(user: UserDepends, server_id: int, connect: PGConnectionDepends):
     server = await VPNServerRepo.get(
         GetVpnServerByIdStrategy(server_id),
         connect, 
@@ -30,9 +45,41 @@ async def get_server_by_id(server_id: int, connect: PGConnectionDepends):
         raise HTTPException(status_code=400, detail=f'Не удалось найти сервер с id {server_id}')
     return response(server)
 
+@vpn_servers_rt.post('/{server_id}/clients/', response_model=ApplicationResponse[bool])
+async def create_vpn_client(user: UserDepends, client_name: str, server_id: int, connect: PGConnectionDepends):
+    server = await VPNServerRepo.get(
+        GetVpnServerByIdStrategy(server_id),
+        connect, 
+    )
+    if not server:
+        raise HTTPException(status_code=400, detail='Сервер не найден')
+    url = f'http://{server.ipv4}:51821/api/wireguard/client'
+
+    records = await connect.fetch('SELECT * FROM vpn_servers_connection WHERE server_id = $1', server_id)
+    connect_sid = dict(records[0]).get('connection')
+    if not connect_sid:
+        raise HTTPException(status_code=400, detail=f'Ошибка. Нет кредов для сервера {server_id}')
+
+    client_create_response = httpx.post(url, cookies={'connect.sid': connect_sid}, json={'name': client_name})
+
+    succes = client_create_response.json()['success']
+    if not succes:
+        raise HTTPException(status_code=400, detail=f'Ошибка при создание конфига для сервера - {server_id}')
+    
+    clients_response = httpx.get(url, cookies={'connect.sid': connect_sid})
+    client = find_client(client_name=client_name, clients_json=clients_response.json())
+    if not client:
+        raise HTTPException(status_code=400, detail=f'Ошибка при создание конфига для сервера - {server_id}')
+    config_id = await ConfigRepo.create(
+        server_id=server_id, user_uuid=user.uuid, config_uuid=client.user_id, connect=connect
+    )
+    if not config_id:
+        raise HTTPException(status_code=400, detail=f'Ошибка при создание конфига для сервера - {server_id}')
+        
+    return response(succes)
 
 @vpn_servers_rt.get('/{server_id}/clients/', response_model=ApplicationResponse[list[VpnServerClient]])
-async def clients_info(server_id: int, connect: PGConnectionDepends):
+async def clients_info(user: UserDepends, server_id: int, connect: PGConnectionDepends):
     server = await VPNServerRepo.get(
         GetVpnServerByIdStrategy(server_id),
         connect, 
@@ -64,6 +111,7 @@ async def clients_info(server_id: int, connect: PGConnectionDepends):
                 createdAt = client['createdAt'],
                 updatedAt = client['updatedAt'],
                 enabled = client['enabled'],
+                user_id = client['id'],
             )
         )
     

@@ -1,4 +1,5 @@
 from datetime import datetime
+from uuid import UUID
 from pydantic.dataclasses import dataclass
 from pydantic import Field
 
@@ -22,4 +23,5 @@ class VpnServerClient:
     updatedAt: str
     enabled: bool
     latestHandshakeAt: str | None
+    user_id: UUID
     name: str = 'Anonimus'
