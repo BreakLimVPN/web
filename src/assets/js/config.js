@@ -7,12 +7,15 @@ function ConfigPage() {
     const [isNavigating, setIsNavigating] = React.useState(false);
     const [loadingNavButton, setLoadingNavButton] = React.useState('');
     const [isDownloading, setIsDownloading] = React.useState(false);
+    const [downloadProgress, setDownloadProgress] = React.useState('');
     const [configError, setConfigError] = React.useState(null);
     const [configSuccess, setConfigSuccess] = React.useState(false);
+    const [fieldErrors, setFieldErrors] = React.useState({}); // Для отслеживания ошибок полей
     const [activeMode, setActiveMode] = React.useState('create'); // 'create' или 'edit'
     const [existingConfigs, setExistingConfigs] = React.useState([]);
     const [selectedConfig, setSelectedConfig] = React.useState(null);
     const [isLoadingConfigs, setIsLoadingConfigs] = React.useState(false);
+    const [selectedProtocol, setSelectedProtocol] = React.useState('amneziawg'); // Новое состояние для протокола
     const [formData, setFormData] = React.useState({
         clientName: '',
         dns: ['1.1.1.1'],
@@ -24,8 +27,56 @@ function ConfigPage() {
     
     // Ref для хранения интервалов
     const intervalsRef = React.useRef({});
+    
+    // Ref для AbortController
+    const abortControllerRef = React.useRef(null);
 
     const serverId = window.SERVER_ID;
+
+    // Определение протоколов и их настроек
+    const protocols = {
+        amneziawg: {
+            name: 'AmneziaWG',
+            icon: '🔒',
+            defaultSettings: {
+                dns: ['1.1.1.1'],
+                mtu: '1420',
+                allowedIPs: '0.0.0.0/0',
+                persistentKeepalive: '25'
+            },
+            mtuOptions: [
+                { value: '1420', label: '1420 (Рекомендуется)' },
+                { value: '1380', label: '1380' },
+                { value: '1280', label: '1280' }
+            ],
+            keepaliveOptions: [
+                { value: '25', label: '25 секунд' },
+                { value: '15', label: '15 секунд' },
+                { value: '0', label: 'Отключено' }
+            ]
+        },
+        xray: {
+            name: 'Xray',
+            icon: '🚀',
+            disabled: true,
+            defaultSettings: {
+                dns: ['8.8.8.8'],
+                mtu: '1500',
+                allowedIPs: '0.0.0.0/0',
+                persistentKeepalive: '30'
+            },
+            mtuOptions: [
+                { value: '1500', label: '1500 (Рекомендуется)' },
+                { value: '1400', label: '1400' },
+                { value: '1300', label: '1300' }
+            ],
+            keepaliveOptions: [
+                { value: '30', label: '30 секунд' },
+                { value: '20', label: '20 секунд' },
+                { value: '0', label: 'Отключено' }
+            ],
+        }
+    };
 
     // Популярные DNS серверы
     const popularDNS = [
@@ -51,6 +102,8 @@ function ConfigPage() {
     const clearNotifications = () => {
         setConfigError(null);
         setConfigSuccess(false);
+        setDownloadProgress(''); // Очищаем прогресс
+        setFieldErrors({}); // Очищаем ошибки полей
     };
 
     // Автоматическая очистка уведомлений через 5 секунд
@@ -60,6 +113,19 @@ function ConfigPage() {
             return () => clearTimeout(timer);
         }
     }, [configError, configSuccess]);
+
+    // Функция для изменения протокола
+    const handleProtocolChange = (protocol) => {
+        setSelectedProtocol(protocol);
+        const protocolSettings = protocols[protocol].defaultSettings;
+        setFormData(prev => ({
+            ...prev,
+            dns: protocolSettings.dns,
+            mtu: protocolSettings.mtu,
+            allowedIPs: protocolSettings.allowedIPs,
+            persistentKeepalive: protocolSettings.persistentKeepalive
+        }));
+    };
 
     React.useEffect(() => {
         const checkTokenValidity = async () => {
@@ -180,15 +246,66 @@ function ConfigPage() {
         // Устанавливаем интервалы
         intervalsRef.current.tokenCheck = setInterval(checkTokenValidityPeriodically, 30000);
         
-        return clearAllIntervals;
+        return () => {
+            clearAllIntervals();
+            // Отменяем активный запрос при размонтировании
+            if (abortControllerRef.current) {
+                abortControllerRef.current.abort();
+            }
+        };
     }, [serverId]);
+
+    // Функция для валидации имени клиента
+    const validateClientName = (name) => {
+        const trimmedName = name.trim();
+        
+        if (!trimmedName) {
+            return 'Пожалуйста, введите имя клиента';
+        }
+        
+        if (trimmedName.length < 3) {
+            return 'Имя клиента должно содержать минимум 3 символа';
+        }
+        
+        if (trimmedName.length > 50) {
+            return 'Имя клиента не должно превышать 50 символов';
+        }
+        
+        const validNamePattern = /^[a-zA-Z0-9а-яА-Я\s\-_\.]+$/;
+        if (!validNamePattern.test(trimmedName)) {
+            return 'Имя клиента может содержать только буквы, цифры, пробелы, дефисы, подчеркивания и точки';
+        }
+        
+        const dangerousChars = /[&<>"'`=;(){}[\]]/;
+        if (dangerousChars.test(trimmedName)) {
+            return 'Имя клиента содержит недопустимые символы: & < > " \' ` = ; ( ) { } [ ]';
+        }
+        
+        return null; // Нет ошибок
+    };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
+        
+        // Обновляем данные формы
         setFormData(prev => ({
             ...prev,
             [name]: value
         }));
+        
+        // Валидируем поле в реальном времени
+        if (name === 'clientName') {
+            const error = validateClientName(value);
+            setFieldErrors(prev => ({
+                ...prev,
+                clientName: error
+            }));
+            
+            // Очищаем общую ошибку конфига если поле стало валидным
+            if (!error && configError) {
+                setConfigError(null);
+            }
+        }
     };
 
     // Функция для загрузки существующих конфигов
@@ -222,13 +339,14 @@ function ConfigPage() {
         if (mode === 'edit') {
             fetchExistingConfigs();
         } else {
-            // Сброс формы для создания нового конфига
+            // Сброс формы для создания нового конфига с текущим протоколом
+            const protocolSettings = protocols[selectedProtocol].defaultSettings;
             setFormData({
                 clientName: '',
-                dns: ['1.1.1.1'],
-                mtu: '1420',
-                allowedIPs: '0.0.0.0/0',
-                persistentKeepalive: '25'
+                dns: protocolSettings.dns,
+                mtu: protocolSettings.mtu,
+                allowedIPs: protocolSettings.allowedIPs,
+                persistentKeepalive: protocolSettings.persistentKeepalive
             });
         }
     };
@@ -238,10 +356,10 @@ function ConfigPage() {
         setSelectedConfig(config);
         setFormData({
             clientName: config.clientName || '',
-            dns: config.dns ? config.dns.split(', ') : ['1.1.1.1'],
-            mtu: config.mtu || '1420',
-            allowedIPs: config.allowedIPs || '0.0.0.0/0',
-            persistentKeepalive: config.persistentKeepalive || '25'
+            dns: config.dns ? config.dns.split(', ') : protocols[selectedProtocol].defaultSettings.dns,
+            mtu: config.mtu || protocols[selectedProtocol].defaultSettings.mtu,
+            allowedIPs: config.allowedIPs || protocols[selectedProtocol].defaultSettings.allowedIPs,
+            persistentKeepalive: config.persistentKeepalive || protocols[selectedProtocol].defaultSettings.persistentKeepalive
         });
     };
 
@@ -250,14 +368,17 @@ function ConfigPage() {
         const selectedOptions = Array.from(e.target.selectedOptions).map(option => option.value);
         setFormData(prev => ({
             ...prev,
-            dns: selectedOptions.length > 0 ? selectedOptions : ['1.1.1.1']
+            dns: selectedOptions.length > 0 ? selectedOptions : protocols[selectedProtocol].defaultSettings.dns
         }));
     };
 
     const generateConfigPreview = () => {
         if (!server) return '';
         
-        const config = `[Interface]
+        const currentProtocol = protocols[selectedProtocol];
+        
+        if (selectedProtocol === 'amneziawg') {
+            return `[Interface]
 PrivateKey = <Твой приватный ключ будет тут>
 Address = 10.0.0.2/24
 DNS = ${formData.dns.join(', ')}
@@ -268,13 +389,38 @@ PublicKey = <Публичный ключ сервера будет тут>
 Endpoint = ${server.ipv4}:51820
 AllowedIPs = ${formData.allowedIPs}
 PersistentKeepalive = ${formData.persistentKeepalive}`;
+        } else if (selectedProtocol === 'xray') {
+            return `{
+  "protocol": "vmess",
+  "settings": {
+    "vnext": [{
+      "address": "${server.ipv4}",
+      "port": 443,
+      "users": [{
+        "id": "<UUID будет тут>",
+        "alterId": 0
+      }]
+    }]
+  },
+  "streamSettings": {
+    "network": "ws",
+    "security": "tls",
+    "wsSettings": {
+      "path": "/path",
+      "headers": {
+        "Host": "${server.ipv4}"
+      }
+    }
+  }
+}`;
+        }
         
-        return config;
+        return '';
     };
 
     React.useEffect(() => {
         setConfigPreview(generateConfigPreview());
-    }, [formData, server]);
+    }, [formData, server, selectedProtocol]);
 
     const handleCreateConfig = async () => {
         if (!server || !isUserAuthorized) return;
@@ -287,109 +433,284 @@ PersistentKeepalive = ${formData.persistentKeepalive}`;
             navigator.vibrate(100);
         }
         
+        // Валидация формы
+        const trimmedClientName = formData.clientName.trim();
+        const clientNameError = validateClientName(trimmedClientName);
+        
+        if (clientNameError) {
+            setConfigError(clientNameError);
+            setFieldErrors(prev => ({
+                ...prev,
+                clientName: clientNameError
+            }));
+            return;
+        }
+        
         setIsDownloading(true);
+        setDownloadProgress('Подключение к серверу...');
+        
+        // Отменяем предыдущий запрос, если он есть
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+        }
+        
+        // Создаем новый AbortController
+        abortControllerRef.current = new AbortController();
+        const { signal } = abortControllerRef.current;
         
         try {
-            const endpoint = activeMode === 'edit' && selectedConfig 
-                ? `/api/servers/${serverId}/configs/${selectedConfig.id}/`
-                : `/api/servers/${serverId}/config/`;
+            // Используем новый endpoint для создания конфига
+            const endpoint = `/api/servers/${serverId}/clients/`;
             
-            const method = activeMode === 'edit' ? 'PUT' : 'POST';
+            // Создаем URL с query параметрами
+            const url = new URL(endpoint, window.location.origin);
+            url.searchParams.append('client_name', trimmedClientName);
             
-            const response = await fetch(endpoint, {
-                method: method,
+            setDownloadProgress('Создание конфига...');
+            
+            const response = await fetch(url.toString(), {
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(formData)
+                signal // Добавляем signal для возможности отмены
             });
 
             if (response.ok) {
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `${formData.clientName || 'client'}.conf`;
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-                document.body.removeChild(a);
+                setDownloadProgress('Получение конфига...');
                 
-                setConfigSuccess(true);
+                // Проверяем тип контента в ответе
+                const contentType = response.headers.get('content-type');
                 
-                // Если это было редактирование, обновляем список конфигов
-                if (activeMode === 'edit') {
-                    fetchExistingConfigs();
+                if (contentType && (contentType.includes('application/octet-stream') || 
+                    contentType.includes('text/plain') || 
+                    contentType.includes('application/x-wireguard-config'))) {
+                    // Сервер вернул файл конфига напрямую
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    
+                    // Получаем имя файла из заголовка Content-Disposition, если есть
+                    const contentDisposition = response.headers.get('content-disposition');
+                    let fileName = `${trimmedClientName}_${server.name || serverId}.conf`;
+                    
+                    if (contentDisposition) {
+                        const fileNameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+                        if (fileNameMatch && fileNameMatch[1]) {
+                            fileName = fileNameMatch[1].replace(/['"]/g, '');
+                        }
+                    }
+                    
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    
+                    setConfigSuccess(true);
+                    
+                    // Очищаем форму
+                    setFormData(prev => ({
+                        ...prev,
+                        clientName: ''
+                    }));
+                    
+                    // Логируем успешное создание
+                    console.log('Config downloaded successfully:', {
+                        clientName: trimmedClientName,
+                        serverId: serverId,
+                        fileName: fileName
+                    });
+                } else {
+                    // Сервер вернул JSON ответ
+                    const data = await response.json();
+                    
+                    if (data.ok && data.content === true) {
+                        // API подтвердил создание конфига
+                        setConfigSuccess(true);
+                        
+                        // Очищаем форму после успешного создания
+                        setFormData(prev => ({
+                            ...prev,
+                            clientName: ''
+                        }));
+                        
+                        // Если API не возвращает конфиг напрямую, показываем инструкцию
+                        setConfigSuccess(true);
+                        
+                        // Логируем успешное создание
+                        console.log('Config created successfully:', {
+                            clientName: trimmedClientName,
+                            serverId: serverId,
+                            response: data
+                        });
+                        
+                        // Автоматически переходим на страницу профиля через 2 секунды
+                        setTimeout(() => {
+                            window.location.href = '/self/';
+                        }, 2000);
+                    } else if (data.ok && data.content) {
+                        // Если API возвращает конфиг в виде текста
+                        if (data.content.config_content) {
+                            // Создаем blob из текста конфига
+                            const blob = new Blob([data.content.config_content], { 
+                                type: 'text/plain' 
+                            });
+                            
+                            // Скачиваем файл
+                            const url = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            
+                            // Формируем имя файла
+                            const fileName = data.content.file_name || 
+                                           `${trimmedClientName}_${server.name || serverId}.conf`;
+                            a.download = fileName;
+                            
+                            document.body.appendChild(a);
+                            a.click();
+                            window.URL.revokeObjectURL(url);
+                            document.body.removeChild(a);
+                            
+                            setConfigSuccess(true);
+                            
+                            // Очищаем форму после успешного создания
+                            setFormData(prev => ({
+                                ...prev,
+                                clientName: ''
+                            }));
+                            
+                            // Обновляем список конфигов, если мы в режиме редактирования
+                            if (activeMode === 'edit') {
+                                fetchExistingConfigs();
+                            }
+                            
+                            // Логируем успешное создание для аналитики
+                            console.log('Config created successfully:', {
+                                clientName: trimmedClientName,
+                                serverId: serverId,
+                                configId: data.content.id
+                            });
+                        } else {
+                            // API вернул успешный ответ, но без конфига
+                            // Возможно, конфиг нужно скачать отдельным запросом
+                            throw new Error('Конфиг создан, но не получен. Попробуйте скачать его из списка конфигов.');
+                        }
+                    } else {
+                        // Если ответ не содержит ожидаемых данных
+                        throw new Error(data.message || 'Неверный формат ответа от сервера');
+                    }
                 }
             } else {
-                let errorMessage = activeMode === 'edit' 
-                    ? 'Ошибка при обновлении конфига' 
-                    : 'Ошибка при создании конфига';
+                // Обработка ошибок HTTP
+                let errorMessage = 'Ошибка при создании конфига';
                 
                 try {
                     const errorData = await response.json();
-                    if (errorData.message) {
+                    
+                    // Обработка различных форматов ошибок
+                    if (errorData.detail) {
+                        if (typeof errorData.detail === 'string') {
+                            errorMessage = errorData.detail;
+                        } else if (Array.isArray(errorData.detail)) {
+                            // FastAPI validation errors
+                            errorMessage = errorData.detail
+                                .map(err => err.msg || err.message)
+                                .join(', ');
+                        } else if (typeof errorData.detail === 'object') {
+                            errorMessage = errorData.detail.message || JSON.stringify(errorData.detail);
+                        }
+                    } else if (errorData.message) {
                         errorMessage = errorData.message;
-                    } else if (errorData.detail) {
-                        errorMessage = errorData.detail;
+                    } else if (errorData.error) {
+                        errorMessage = errorData.error;
                     }
-                } catch (parseError) {
-                    // Если не удалось распарсить JSON, используем статус
+                    
+                    // Специфичные ошибки по статус-коду
                     switch (response.status) {
                         case 400:
-                            errorMessage = 'Неверные параметры запроса';
+                            if (!errorData.detail && !errorData.message) {
+                                errorMessage = 'Неверные параметры запроса. Проверьте введенные данные.';
+                            }
                             break;
                         case 401:
-                            errorMessage = 'Требуется авторизация';
+                            errorMessage = 'Сессия истекла. Пожалуйста, войдите в систему снова.';
+                            // Перенаправляем на страницу входа через 2 секунды
+                            setTimeout(() => {
+                                window.location.href = '/self/';
+                            }, 2000);
                             break;
                         case 403:
-                            errorMessage = 'Доступ запрещен';
+                            errorMessage = 'У вас нет прав для создания конфигов на этом сервере.';
                             break;
                         case 404:
-                            errorMessage = activeMode === 'edit' ? 'Конфиг не найден' : 'Сервер не найден';
+                            errorMessage = 'Сервер не найден. Возможно, он был удален.';
+                            break;
+                        case 409:
+                            errorMessage = errorData.detail || 'Конфиг с таким именем уже существует.';
+                            break;
+                        case 422:
+                            errorMessage = 'Неверный формат данных. Проверьте правильность заполнения формы.';
+                            break;
+                        case 429:
+                            errorMessage = 'Слишком много запросов. Пожалуйста, подождите немного.';
                             break;
                         case 500:
-                            errorMessage = 'Внутренняя ошибка сервера';
+                            errorMessage = 'Внутренняя ошибка сервера. Попробуйте позже.';
                             break;
-                        default:
-                            errorMessage = `Ошибка ${response.status}: ${response.statusText}`;
+                        case 503:
+                            errorMessage = 'Сервер временно недоступен. Попробуйте позже.';
+                            break;
                     }
+                } catch (parseError) {
+                    console.error('Error parsing error response:', parseError);
+                    // Если не удалось распарсить JSON, используем общее сообщение
+                    errorMessage = `Ошибка ${response.status}: ${response.statusText}`;
                 }
                 
                 setConfigError(errorMessage);
+                
+                // Логируем ошибку для отладки
+                console.error('Config creation error:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    errorMessage
+                });
             }
         } catch (error) {
-            console.error('Error creating/updating config:', error);
-            setConfigError('Ошибка сети. Проверьте подключение к интернету.');
+            console.error('Error creating config:', error);
+            
+            // Обработка сетевых ошибок
+            if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+                setConfigError('Ошибка соединения. Проверьте подключение к интернету.');
+            } else if (error.name === 'AbortError') {
+                setConfigError('Запрос был отменен. Попробуйте еще раз.');
+            } else {
+                setConfigError(error.message || 'Произошла неожиданная ошибка. Попробуйте еще раз.');
+            }
         } finally {
             setIsDownloading(false);
+            setDownloadProgress('');
+            // Очищаем ссылку на AbortController
+            abortControllerRef.current = null;
         }
     };
 
     const handleNavigation = (page) => {
         if (isNavigating) return;
         
-        setIsNavigating(true);
-        setLoadingNavButton(page);
-        
-        // Add haptic feedback for mobile devices
-        if ('vibrate' in navigator) {
-            navigator.vibrate(50);
+        if (window.VpnUtils?.NavigationUtils) {
+            window.VpnUtils.NavigationUtils.navigate(page, setIsNavigating, setLoadingNavButton);
+        } else {
+            // Fallback
+            setIsNavigating(true);
+            setLoadingNavButton(page);
+            setTimeout(() => {
+                const routes = { dashboard: '/dashboard/', servers: '/home/', account: '/self/' };
+                window.location.href = routes[page] || '/';
+            }, 300);
         }
-        
-        setTimeout(() => {
-            switch(page) {
-                case 'dashboard':
-                    window.location.href = '/dashboard/';
-                    break;
-                case 'servers':
-                    window.location.href = '/home/';
-                    break;
-                case 'account':
-                    window.location.href = '/self/';
-                    break;
-            }
-        }, 300);
     };
 
     // Функция для создания уведомления
@@ -515,11 +836,13 @@ PersistentKeepalive = ${formData.persistentKeepalive}`;
         }, 'Загрузка данных сервера...');
     }
 
+    const currentProtocol = protocols[selectedProtocol];
+
     // Основной рендеринг
     return React.createElement('div', { className: 'config-page' }, [
         // Уведомления
         configError && createNotification('error', configError),
-        configSuccess && createNotification('success', activeMode === 'edit' ? 'Конфиг успешно обновлен и скачан!' : 'Конфиг успешно создан и скачан!'),
+        configSuccess && createNotification('success', 'Конфиг успешно создан! Переход в личный кабинет...'),
         
         // Header
         React.createElement('header', { key: 'header', className: 'config-header' }, 
@@ -579,6 +902,32 @@ PersistentKeepalive = ${formData.persistentKeepalive}`;
             React.createElement('div', { key: 'grid', className: 'config-grid' }, [
                 // Config Creation/Edit Card with Slider
                 React.createElement('div', { key: 'creation', className: 'config-creation-card' }, [
+                    // Protocol Selection
+                    React.createElement('div', { key: 'protocol-selector', className: 'protocol-selector' }, [
+                        React.createElement('h3', { key: 'title', className: 'protocol-title' }, [
+                            React.createElement('span', { key: 'icon' }, '🔧'),
+                            'Выберите протокол'
+                        ]),
+                        React.createElement('div', { key: 'protocols', className: 'protocol-options' }, 
+                            Object.entries(protocols).map(([key, protocol]) => 
+                                React.createElement('button', {
+                                    key: key,
+                                    onClick: () => !protocol.disabled && handleProtocolChange(key),
+                                    className: `protocol-option ${selectedProtocol === key ? 'active' : ''}`,
+                                    disabled: isDownloading || protocol.disabled,
+                                    style: protocol.disabled ? { opacity: 0.5, pointerEvents: 'none', cursor: 'not-allowed' } : {}
+                                }, [
+                                    React.createElement('span', { key: 'icon', className: 'protocol-icon' }, protocol.icon),
+                                    React.createElement('span', { key: 'name', className: 'protocol-name' }, protocol.name),
+                                    protocol.disabled && React.createElement('span', { 
+                                        key: 'desc', 
+                                        className: 'protocol-description' 
+                                    }, 'Скоро')
+                                ])
+                            )
+                        )
+                    ]),
+
                     // Slider Container
                     React.createElement('div', { key: 'slider-container', className: 'config-slider-container' }, [
                         // Create Form
@@ -587,25 +936,50 @@ PersistentKeepalive = ${formData.persistentKeepalive}`;
                             className: `config-form-wrapper ${activeMode === 'create' ? 'active' : 'inactive'}` 
                         }, [
                             React.createElement('h2', { key: 'title', className: 'card-title' }, [
-                                React.createElement('span', { key: 'icon' }, '⚙️'),
-                                'Настройки конфига'
+                                React.createElement('span', { key: 'icon', className: 'card-title-icon' }, currentProtocol.icon),
+                                `Настройки ${currentProtocol.name}`
                             ]),
-                            React.createElement('form', { key: 'form', className: 'config-form' }, [
-                                React.createElement('div', { key: 'client-name', className: 'form-group' }, [
-                                    React.createElement('label', { key: 'label', className: 'form-label' }, 'Имя клиента'),
+                            React.createElement('form', { 
+                                key: 'form', 
+                                className: 'config-form',
+                                onSubmit: (e) => {
+                                    e.preventDefault();
+                                    if (!fieldErrors.clientName && formData.clientName.trim()) {
+                                        handleCreateConfig();
+                                    }
+                                }
+                            }, [
+                                React.createElement('div', { 
+                                    key: 'client-name', 
+                                    className: `form-group ${fieldErrors.clientName ? 'error' : ''}` 
+                                }, [
+                                    React.createElement('label', { key: 'label', className: 'form-label' }, [
+                                        React.createElement('span', { key: 'icon', className: 'form-label-icon' }, '👤'),
+                                        'Имя клиента'
+                                    ]),
                                     React.createElement('input', {
                                         key: 'input',
                                         type: 'text',
                                         name: 'clientName',
                                         value: formData.clientName,
                                         onChange: handleInputChange,
-                                        placeholder: 'Введите имя клиента',
-                                        className: 'form-input',
+                                        placeholder: 'Например: Мой iPhone',
+                                        className: `form-input ${fieldErrors.clientName ? 'error' : ''}`,
                                         required: true
-                                    })
+                                    }),
+                                    fieldErrors.clientName && React.createElement('div', {
+                                        key: 'error',
+                                        className: 'form-validation-message error'
+                                    }, [
+                                        React.createElement('span', { key: 'icon' }, '⚠️'),
+                                        fieldErrors.clientName
+                                    ])
                                 ]),
                                 React.createElement('div', { key: 'dns', className: 'form-group' }, [
-                                    React.createElement('label', { key: 'label', className: 'form-label' }, 'DNS серверы'),
+                                    React.createElement('label', { key: 'label', className: 'form-label' }, [
+                                        React.createElement('span', { key: 'icon', className: 'form-label-icon' }, '🌐'),
+                                        'DNS серверы'
+                                    ]),
                                     React.createElement('select', {
                                         key: 'select',
                                         name: 'dns',
@@ -624,21 +998,25 @@ PersistentKeepalive = ${formData.persistentKeepalive}`;
                                     ))
                                 ]),
                                 React.createElement('div', { key: 'mtu', className: 'form-group' }, [
-                                    React.createElement('label', { key: 'label', className: 'form-label' }, 'MTU'),
+                                    React.createElement('label', { key: 'label', className: 'form-label' }, [
+                                        React.createElement('span', { key: 'icon', className: 'form-label-icon' }, '📏'),
+                                        'MTU'
+                                    ]),
                                     React.createElement('select', {
                                         key: 'select',
                                         name: 'mtu',
                                         value: formData.mtu,
                                         onChange: handleInputChange,
                                         className: 'form-select'
-                                    }, [
-                                        React.createElement('option', { key: '1420', value: '1420' }, '1420 (Рекомендуется)'),
-                                        React.createElement('option', { key: '1380', value: '1380' }, '1380'),
-                                        React.createElement('option', { key: '1280', value: '1280' }, '1280')
-                                    ])
+                                    }, currentProtocol.mtuOptions.map(option => 
+                                        React.createElement('option', { key: option.value, value: option.value }, option.label)
+                                    ))
                                 ]),
                                 React.createElement('div', { key: 'allowed-ips', className: 'form-group' }, [
-                                    React.createElement('label', { key: 'label', className: 'form-label' }, 'Разрешенные IP'),
+                                    React.createElement('label', { key: 'label', className: 'form-label' }, [
+                                        React.createElement('span', { key: 'icon', className: 'form-label-icon' }, '🛡️'),
+                                        'Разрешенные IP'
+                                    ]),
                                     React.createElement('select', {
                                         key: 'select',
                                         name: 'allowedIPs',
@@ -651,18 +1029,19 @@ PersistentKeepalive = ${formData.persistentKeepalive}`;
                                     ])
                                 ]),
                                 React.createElement('div', { key: 'keepalive', className: 'form-group' }, [
-                                    React.createElement('label', { key: 'label', className: 'form-label' }, 'Persistent Keepalive'),
+                                    React.createElement('label', { key: 'label', className: 'form-label' }, [
+                                        React.createElement('span', { key: 'icon', className: 'form-label-icon' }, '⏰'),
+                                        'Persistent Keepalive'
+                                    ]),
                                     React.createElement('select', {
                                         key: 'select',
                                         name: 'persistentKeepalive',
                                         value: formData.persistentKeepalive,
                                         onChange: handleInputChange,
                                         className: 'form-select'
-                                    }, [
-                                        React.createElement('option', { key: '25', value: '25' }, '25 секунд'),
-                                        React.createElement('option', { key: '15', value: '15' }, '15 секунд'),
-                                        React.createElement('option', { key: '0', value: '0' }, 'Отключено')
-                                    ])
+                                    }, currentProtocol.keepaliveOptions.map(option => 
+                                        React.createElement('option', { key: option.value, value: option.value }, option.label)
+                                    ))
                                 ]),
                                 // Кнопка создания конфига
                                 React.createElement('div', { key: 'submit', className: 'form-group' }, [
@@ -670,7 +1049,7 @@ PersistentKeepalive = ${formData.persistentKeepalive}`;
                                         React.createElement('button', {
                                             key: 'create',
                                             onClick: handleCreateConfig,
-                                            disabled: !isUserAuthorized || !formData.clientName.trim() || isDownloading,
+                                            disabled: !isUserAuthorized || !formData.clientName.trim() || isDownloading || fieldErrors.clientName,
                                             className: 'config-btn primary main-action-btn',
                                             style: {
                                                 flex: 1,
@@ -702,7 +1081,7 @@ PersistentKeepalive = ${formData.persistentKeepalive}`;
                                                             animation: 'spin 1s linear infinite'
                                                         }
                                                     }),
-                                                    'Создание конфига...'
+                                                    downloadProgress || 'Создание конфига...'
                                                 ]) :
                                                 React.createElement('div', {
                                                     key: 'content',
@@ -713,8 +1092,8 @@ PersistentKeepalive = ${formData.persistentKeepalive}`;
                                                         gap: '8px'
                                                     }
                                                 }, [
-                                                    React.createElement('span', { key: 'icon' }, '⚙️'),
-                                                    'Создать и скачать'
+                                                    React.createElement('span', { key: 'icon' }, currentProtocol.icon),
+                                                    'Создать'
                                                 ])
                                         ]),
                                         React.createElement('button', {
@@ -745,15 +1124,36 @@ PersistentKeepalive = ${formData.persistentKeepalive}`;
                         // Edit Form
                         React.createElement('div', { 
                             key: 'edit-form', 
-                            className: `config-form-wrapper ${activeMode === 'edit' ? 'active' : 'inactive'}` 
+                            className: `config-form-wrapper ${activeMode === 'edit' ? 'active' : 'inactive'}`
                         }, [
-                            React.createElement('h2', { key: 'title', className: 'card-title' }, [
+                            React.createElement('div', {
+                                key: 'edit-overlay',
+                                className: 'edit-overlay',
+                                style: activeMode === 'edit' ? {} : { display: 'none' }
+                            }, [
+                                React.createElement('p', {
+                                    key: 'message',
+                                    className: 'edit-overlay-message'
+                                }, 'Редактирование временно недоступно'),
+                                React.createElement('button', {
+                                    key: 'return-btn',
+                                    onClick: (e) => {
+                                        e.preventDefault();
+                                        switchMode('create');
+                                    },
+                                    className: 'edit-return-btn',
+                                    type: 'button'
+                                }, [
+                                    React.createElement('span', { key: 'icon' }, '←'),
+                                    'Вернуться к созданию'
+                                ])
+                            ]),
+                            React.createElement('h2', { key: 'title', className: `card-title${activeMode === 'edit' ? ' deactivated-form deactivated-header' : ''}` }, [
                                 React.createElement('span', { key: 'icon' }, '✏️'),
                                 'Редактирование конфига'
                             ]),
-                            
                             // Config Selection for Edit Mode
-                            React.createElement('div', { key: 'config-selector', className: 'config-selector' }, [
+                            React.createElement('div', { key: 'config-selector', className: `config-selector${activeMode === 'edit' ? ' deactivated-form deactivated-header' : ''}` }, [
                                 React.createElement('label', { key: 'label', className: 'form-label' }, 'Выберите конфиг для редактирования'),
                                 React.createElement('select', {
                                     key: 'select',
@@ -767,7 +1167,7 @@ PersistentKeepalive = ${formData.persistentKeepalive}`;
                                         }
                                     },
                                     className: 'form-select',
-                                    disabled: isLoadingConfigs
+                                    disabled: true
                                 }, [
                                     React.createElement('option', { key: 'placeholder', value: '' }, 
                                         isLoadingConfigs ? 'Загрузка конфигов...' : 'Выберите конфиг'
@@ -779,8 +1179,7 @@ PersistentKeepalive = ${formData.persistentKeepalive}`;
                                     )
                                 ])
                             ]),
-                            
-                            React.createElement('form', { key: 'form', className: 'config-form' }, [
+                            React.createElement('form', { key: 'form', className: `config-form${activeMode === 'edit' ? ' deactivated-form' : ''}` }, [
                                 React.createElement('div', { key: 'client-name', className: 'form-group' }, [
                                     React.createElement('label', { key: 'label', className: 'form-label' }, 'Имя клиента'),
                                     React.createElement('input', {
@@ -791,7 +1190,8 @@ PersistentKeepalive = ${formData.persistentKeepalive}`;
                                         onChange: handleInputChange,
                                         placeholder: 'Введите имя клиента',
                                         className: 'form-input',
-                                        required: true
+                                        required: true,
+                                        disabled: true
                                     })
                                 ]),
                                 React.createElement('div', { key: 'dns', className: 'form-group' }, [
@@ -804,7 +1204,8 @@ PersistentKeepalive = ${formData.persistentKeepalive}`;
                                             ...prev,
                                             dns: [e.target.value]
                                         })),
-                                        className: 'form-select'
+                                        className: 'form-select',
+                                        disabled: true
                                     }, popularDNS.map(dns => 
                                         React.createElement('option', { 
                                             key: dns.value, 
@@ -820,12 +1221,11 @@ PersistentKeepalive = ${formData.persistentKeepalive}`;
                                         name: 'mtu',
                                         value: formData.mtu,
                                         onChange: handleInputChange,
-                                        className: 'form-select'
-                                    }, [
-                                        React.createElement('option', { key: '1420', value: '1420' }, '1420 (Рекомендуется)'),
-                                        React.createElement('option', { key: '1380', value: '1380' }, '1380'),
-                                        React.createElement('option', { key: '1280', value: '1280' }, '1280')
-                                    ])
+                                        className: 'form-select',
+                                        disabled: true
+                                    }, currentProtocol.mtuOptions.map(option => 
+                                        React.createElement('option', { key: option.value, value: option.value }, option.label)
+                                    ))
                                 ]),
                                 React.createElement('div', { key: 'allowed-ips', className: 'form-group' }, [
                                     React.createElement('label', { key: 'label', className: 'form-label' }, 'Разрешенные IP'),
@@ -834,7 +1234,8 @@ PersistentKeepalive = ${formData.persistentKeepalive}`;
                                         name: 'allowedIPs',
                                         value: formData.allowedIPs,
                                         onChange: handleInputChange,
-                                        className: 'form-select'
+                                        className: 'form-select',
+                                        disabled: true
                                     }, [
                                         React.createElement('option', { key: 'all', value: '0.0.0.0/0' }, 'Весь трафик'),
                                         React.createElement('option', { key: 'lan', value: '10.0.0.0/8,172.16.0.0/12,192.168.0.0/16' }, 'Только LAN')
@@ -847,87 +1248,47 @@ PersistentKeepalive = ${formData.persistentKeepalive}`;
                                         name: 'persistentKeepalive',
                                         value: formData.persistentKeepalive,
                                         onChange: handleInputChange,
-                                        className: 'form-select'
+                                        className: 'form-select',
+                                        disabled: true
+                                    }, currentProtocol.keepaliveOptions.map(option => 
+                                        React.createElement('option', { key: option.value, value: option.value }, option.label)
+                                    ))
+                                ])
+                            ]),
+                            // Нижние кнопки без стилей размытия
+                            React.createElement('div', { key: 'edit-buttons', className: 'buttons-container' }, [
+                                React.createElement('button', {
+                                    key: 'update',
+                                    onClick: handleCreateConfig,
+                                    disabled: true,
+                                    className: 'config-btn primary main-action-btn'
+                                }, [
+                                    React.createElement('div', {
+                                        key: 'content',
+                                        style: {
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            gap: '8px'
+                                        }
                                     }, [
-                                        React.createElement('option', { key: '25', value: '25' }, '25 секунд'),
-                                        React.createElement('option', { key: '15', value: '15' }, '15 секунд'),
-                                        React.createElement('option', { key: '0', value: '0' }, 'Отключено')
+                                        React.createElement('span', { key: 'icon' }, '✏️'),
+                                        'Обновить и скачать'
                                     ])
                                 ]),
-                                // Кнопка обновления конфига
-                                React.createElement('div', { key: 'submit', className: 'form-group' }, [
-                                    React.createElement('div', { key: 'buttons-container', className: 'buttons-container' }, [
-                                        React.createElement('button', {
-                                            key: 'update',
-                                            onClick: handleCreateConfig,
-                                            disabled: !isUserAuthorized || !formData.clientName.trim() || isDownloading || !selectedConfig,
-                                            className: 'config-btn primary main-action-btn',
-                                            style: {
-                                                flex: 1,
-                                                padding: '12px 20px',
-                                                fontSize: '14px',
-                                                marginTop: '8px',
-                                                position: 'relative',
-                                                overflow: 'hidden'
-                                            }
-                                        }, [
-                                            isDownloading ? 
-                                                React.createElement('div', {
-                                                    key: 'loading',
-                                                    style: {
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        gap: '8px'
-                                                    }
-                                                }, [
-                                                    React.createElement('div', {
-                                                        key: 'spinner',
-                                                        style: {
-                                                            width: '16px',
-                                                            height: '16px',
-                                                            border: '2px solid transparent',
-                                                            borderTop: '2px solid currentColor',
-                                                            borderRadius: '50%',
-                                                            animation: 'spin 1s linear infinite'
-                                                        }
-                                                    }),
-                                                    'Обновление конфига...'
-                                                ]) :
-                                                React.createElement('div', {
-                                                    key: 'content',
-                                                    style: {
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        gap: '8px'
-                                                    }
-                                                }, [
-                                                    React.createElement('span', { key: 'icon' }, '✏️'),
-                                                    'Обновить и скачать'
-                                                ])
-                                        ]),
-                                        React.createElement('button', {
-                                            key: 'mode-switch-btn',
-                                            onClick: (e) => {
-                                                e.preventDefault();
-                                                switchMode(activeMode === 'create' ? 'edit' : 'create');
-                                            },
-                                            type: 'button',
-                                            className: 'config-btn secondary switch-mode-btn',
-                                            disabled: isDownloading,
-                                            title: activeMode === 'create' ? 'Переключиться на редактирование' : 'Переключиться на создание',
-                                            style: {
-                                                padding: '12px 16px',
-                                                fontSize: '14px',
-                                                marginTop: '8px',
-                                                marginLeft: '12px'
-                                            }
-                                        }, [
-                                            React.createElement('span', { key: 'icon', className: 'switch-icon' }, '🔄'),
-                                            React.createElement('span', { key: 'text', className: 'switch-text' }, 'Создать')
-                                        ])
-                                    ])
+                                React.createElement('button', {
+                                    key: 'mode-switch-btn',
+                                    onClick: (e) => {
+                                        e.preventDefault();
+                                        switchMode('create');
+                                    },
+                                    type: 'button',
+                                    className: 'config-btn secondary switch-mode-btn',
+                                    disabled: false,
+                                    title: 'Переключиться на создание'
+                                }, [
+                                    React.createElement('span', { key: 'icon', className: 'switch-icon' }, '🔄'),
+                                    React.createElement('span', { key: 'text', className: 'switch-text' }, 'Создать')
                                 ])
                             ])
                         ])
@@ -937,8 +1298,8 @@ PersistentKeepalive = ${formData.persistentKeepalive}`;
                 // Config Preview Section - теперь внутри config-grid
                 React.createElement('div', { key: 'preview', className: 'config-preview-section' }, [
                     React.createElement('h2', { key: 'title', className: 'preview-title' }, [
-                        React.createElement('span', { key: 'icon' }, '📄'),
-                        'Предварительный просмотр конфига'
+                        React.createElement('span', { key: 'icon', className: 'card-title-icon' }, currentProtocol.icon),
+                        `Предварительный просмотр ${currentProtocol.name}`
                     ]),
                     React.createElement('pre', {
                         key: 'preview',

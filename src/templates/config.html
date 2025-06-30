@@ -11,7 +11,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.7/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="{{ url_for('assets', path='/css/universal.css') }}" rel="stylesheet">
+    <link href="{{ url_for('assets', path='/css/variables.css') }}" rel="stylesheet">
+    <link href="{{ url_for('assets', path='/css/components.css') }}" rel="stylesheet">
     <link href="{{ url_for('assets', path='/css/config.css') }}" rel="stylesheet">
     <link id="favicon" rel="icon" type="image/x-icon" href="{{ url_for('assets', path='/images/cat_favico.ico') }}">
 </head>
@@ -20,6 +21,7 @@
   <script>
     window.SERVER_ID = "{{ server_id }}";
   </script>
+  <script src="{{ url_for('assets', path='js/utils.js') }}"></script>
   <script src="{{ url_for('assets', path='js/config.js') }}" type="text/babel"></script>
 </body>
 </html> 

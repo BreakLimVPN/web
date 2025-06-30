@@ -5,7 +5,6 @@ from uuid import UUID
 
 from asyncpg import Connection
 
-from webvpn.entities.configs import VpnConfig
 from webvpn.repositories.configs.get_configs_strategy import GetConfigStrategy
 
 
@@ -26,5 +25,24 @@ class ConfigsRepository:
         query = "INSERT INTO configs (server_id, user_uuid, config_uuid, config_name, config_enabled) VALUES ($1, $2, $3, $4, $5) RETURNING id"
         result: int = await connect.fetchval(query, server_id, user_uuid, config_uuid, config_name, config_enabled)
         return result
+
+    async def toggle_enabled(
+        self,
+        config_enabled: bool,
+        config_id: int,
+        connect: Connection,
+    ) -> bool:
+        query = "UPDATE configs set config_enabled = $1 WHERE id = $2 RETURNING TRUE"
+        result: bool = await connect.fetchval(query, config_enabled, config_id)
+        return bool(result)
+
+    async def delete(
+        self,
+        config_id: int,
+        connect: Connection,
+    ) -> bool:
+        query = "DELETE FROM configs WHERE id = $1 RETURNING TRUE"
+        result: bool = await connect.execute(query, config_id)
+        return bool(result)
 
 ConfigRepo = ConfigsRepository()

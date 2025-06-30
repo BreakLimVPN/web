@@ -1,15 +1,18 @@
 /* Config Page Styles - Consistent with other pages */
+@import url('./variables.css');
+@import url('./components.css');
+
 .config-page {
     min-height: 100vh;
-    background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%);
-    color: white;
+    background: var(--bg-primary);
+    color: var(--text-primary);
     padding: 0;
 }
 
 .config-header {
-    background: rgba(255, 255, 255, 0.03);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 24px 0;
+    background: var(--bg-card);
+    border-bottom: var(--border-primary);
+    padding: var(--spacing-lg) 0;
     backdrop-filter: blur(10px);
 }
 
@@ -114,54 +117,272 @@
 
 .config-grid {
     display: flex;
-    gap: 32px;
-    margin-bottom: 40px;
-    align-items: stretch;
-    max-width: 1200px;
+    gap: 24px;
+    margin-bottom: 32px;
+    align-items: flex-start;
+    max-width: 1400px;
     margin-left: auto;
     margin-right: auto;
-    padding: 0 24px;
+    padding: 0 20px;
 }
 
 /* Server Info Card - REMOVED */
 
 /* Config Creation Card */
 .config-creation-card {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(0, 183, 255, 0.2);
-    border-radius: 8px;
-    padding: 24px;
-    backdrop-filter: blur(5px);
-    transition: border-color 0.2s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
+    border: 2px solid rgba(0, 183, 255, 0.2);
+    border-radius: var(--radius-2xl);
+    padding: var(--spacing-xl);
+    backdrop-filter: blur(15px);
+    transition: all var(--transition-normal);
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2);
     display: flex;
     flex-direction: column;
-    min-height: 600px;
-    overflow: hidden;
-    width: 50%;
+    min-height: auto;
+    max-height: 85vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    width: 45%;
     margin: 0;
     flex: 1;
+    position: relative;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 183, 255, 0.3) transparent;
+}
+
+.config-creation-card::-webkit-scrollbar {
+    width: 6px;
+}
+
+.config-creation-card::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.config-creation-card::-webkit-scrollbar-thumb {
+    background: rgba(0, 183, 255, 0.3);
+    border-radius: 3px;
+}
+
+.config-creation-card::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 183, 255, 0.5);
+}
+
+.config-creation-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--gradient-primary);
+    opacity: 0.8;
 }
 
 .config-creation-card:hover {
-    border-color: rgba(0, 183, 255, 0.4);
+    border-color: var(--primary-blue);
+    box-shadow: 0 12px 50px rgba(0, 183, 255, 0.2);
+    transform: translateY(-2px);
 }
+
+/* Protocol Selector Styles */
+.protocol-selector {
+    background: linear-gradient(135deg, rgba(0,183,255,0.05) 0%, rgba(0,255,136,0.05) 100%);
+    border: 2px solid rgba(0, 183, 255, 0.2);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    backdrop-filter: blur(15px);
+    position: relative;
+    overflow: hidden;
+}
+
+.protocol-selector::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--gradient-primary);
+    opacity: 0.6;
+}
+
+.protocol-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 var(--spacing-sm) 0;
+    text-align: center;
+    text-shadow: var(--text-shadow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-xs);
+}
+
+.protocol-options {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    padding: 0 var(--spacing-xs);
+}
+
+.protocol-option {
+    background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
+    border: 2px solid rgba(0, 183, 255, 0.2);
+    border-radius: var(--radius-md);
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: all var(--transition-bounce);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    min-height: 50px;
+    justify-content: center;
+    width: 120px;
+    will-change: transform, box-shadow;
+}
+
+.protocol-option::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 183, 255, 0.1), transparent);
+    transition: left 0.6s ease;
+}
+
+.protocol-option:hover::before {
+    left: 100%;
+}
+
+.protocol-option:hover {
+    border-color: var(--primary-blue);
+    background: linear-gradient(135deg, rgba(0,183,255,0.15) 0%, rgba(0,255,136,0.08) 100%);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 4px 20px rgba(0, 183, 255, 0.25);
+}
+
+.protocol-option.active {
+    background: linear-gradient(135deg, rgba(0,255,136,0.2) 0%, rgba(0,183,255,0.15) 100%);
+    border-color: var(--primary-green);
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.3), 0 4px 20px rgba(0, 183, 255, 0.15);
+    transform: translateY(-2px) scale(1.03);
+}
+
+.protocol-option:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none !important;
+    filter: grayscale(0.8);
+}
+
+/* Tooltip styles for protocol descriptions */
+.protocol-option[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    z-index: 1000;
+    margin-bottom: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.protocol-option[title]:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: rgba(0, 0, 0, 0.9);
+    margin-bottom: 2px;
+    z-index: 1000;
+}
+
+.protocol-icon {
+    font-size: 0.9rem;
+    margin-bottom: 0;
+    transition: var(--transition-normal);
+    flex-shrink: 0;
+}
+
+.protocol-option:hover .protocol-icon {
+    transform: scale(1.05) rotate(2deg);
+}
+
+.protocol-option.active .protocol-icon {
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 8px rgba(0, 255, 136, 0.4));
+}
+
+.protocol-name {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-align: center;
+    margin-bottom: 0;
+    line-height: 1.1;
+}
+
+.protocol-description {
+    font-size: 0.6rem;
+    color: var(--text-secondary);
+    text-align: center;
+    line-height: 1;
+    opacity: 0.8;
+}
+
+/*
+.protocol-description {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.7);
+    white-space: normal;
+    line-height: 1.2;
+    word-wrap: break-word;
+    max-width: 120px;
+}
+*/
 
 .card-title {
     font-size: 1.2rem;
-    font-weight: 600;
-    color: #00b7ff;
-    margin-bottom: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-md);
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--spacing-sm);
+    text-shadow: var(--text-shadow);
+}
+
+.card-title-icon {
+    font-size: 1.3rem;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    margin-bottom: 16px;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+    position: relative;
 }
 
 /* Special styling for the last form-group (buttons container) */
@@ -172,66 +393,116 @@
 }
 
 .form-label {
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--text-secondary);
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 700;
+    margin-bottom: var(--spacing-xs);
+    transition: var(--transition-fast);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.form-label-icon {
+    font-size: 16px;
+    opacity: 0.8;
+    color: var(--primary-blue);
 }
 
 .form-input {
-    padding: 10px 12px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(0, 183, 255, 0.2);
-    border-radius: 6px;
-    color: white;
-    font-size: 14px;
-    transition: border-color 0.2s ease;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
+    border: 2px solid rgba(0, 183, 255, 0.2);
+    border-radius: var(--radius-lg);
+    color: var(--text-primary);
+    font-size: 15px;
+    font-weight: 500;
+    transition: all var(--transition-normal);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 }
 
 .form-input:focus {
     outline: none;
-    border-color: #00b7ff;
-    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--primary-green);
+    background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 100%);
+    box-shadow: 0 0 0 4px rgba(0, 255, 136, 0.1), 0 8px 30px rgba(0, 183, 255, 0.2);
+    transform: translateY(-1px);
 }
 
 .form-input::placeholder {
-    color: rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, 0.5);
+    font-style: italic;
+    font-weight: 400;
 }
 
 .form-select {
-    padding: 10px 12px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(0, 183, 255, 0.2);
-    border-radius: 6px;
-    color: white;
-    font-size: 14px;
-    transition: border-color 0.2s ease;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
+    border: 2px solid rgba(0, 183, 255, 0.2);
+    border-radius: var(--radius-lg);
+    color: var(--text-primary);
+    font-size: 15px;
+    font-weight: 500;
+    transition: all var(--transition-normal);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
     cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-right: 40px;
+    position: relative;
 }
 
 .form-select:focus {
     outline: none;
-    border-color: #00b7ff;
-    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--primary-green);
+    background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 100%);
+    box-shadow: 0 0 0 4px rgba(0, 255, 136, 0.1), 0 8px 30px rgba(0, 183, 255, 0.2);
+    transform: translateY(-1px);
 }
 
 .form-select option {
     background: #2c2c2c;
-    color: white;
+    color: var(--text-primary);
+    padding: 12px;
+}
+
+/* Custom select arrow */
+.form-group:has(.form-select)::after {
+    content: '▼';
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--primary-blue);
+    font-size: 12px;
+    pointer-events: none;
+    transition: var(--transition-fast);
+    margin-top: 10px;
+}
+
+.form-group:has(.form-select:focus)::after {
+    color: var(--primary-green);
 }
 
 /* Config Preview Section */
 .config-preview-section {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(0, 183, 255, 0.2);
-    border-radius: 8px;
-    padding: 24px;
-    backdrop-filter: blur(5px);
-    transition: border-color 0.2s ease;
+    background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
+    border: 2px solid rgba(0, 183, 255, 0.2);
+    border-radius: var(--radius-2xl);
+    padding: var(--spacing-lg);
+    backdrop-filter: blur(15px);
+    transition: all var(--transition-normal);
     margin-top: 0;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    width: 50%;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2);
+    width: 45%;
     margin: 0;
-    height: 600px;
+    height: auto;
+    max-height: 85vh;
     display: flex;
     flex-direction: column;
     flex: 1;
@@ -239,31 +510,45 @@
     overflow: hidden;
 }
 
+.config-preview-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--gradient-primary);
+    opacity: 0.8;
+}
+
 .config-preview-section:hover {
-    border-color: rgba(0, 183, 255, 0.4);
+    border-color: var(--primary-blue);
+    box-shadow: 0 12px 50px rgba(0, 183, 255, 0.2);
+    transform: translateY(-2px);
 }
 
 .preview-title {
     font-size: 1.2rem;
-    font-weight: 600;
-    color: #00b7ff;
-    margin-bottom: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-md);
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--spacing-sm);
     flex-shrink: 0;
+    text-shadow: var(--text-shadow);
 }
 
 .config-preview {
     background: rgba(0, 0, 0, 0.2);
     border: 1px solid rgba(0, 183, 255, 0.15);
-    border-radius: 6px;
-    padding: 16px;
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
     font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace;
     font-size: 13px;
     line-height: 1.5;
     color: rgba(255, 255, 255, 0.9);
-    max-height: 400px !important;
+    max-height: 60vh !important;
     overflow-y: auto;
     white-space: pre-wrap;
     word-wrap: break-word;
@@ -320,29 +605,91 @@
 /* Buttons Container with proper spacing */
 .buttons-container {
     display: flex;
-    gap: 12px;
+    gap: 10px;
     align-items: stretch;
     margin-top: auto;
-    padding: 16px 0 0 0;
+    padding: var(--spacing-sm) 0;
     flex-shrink: 0;
+    position: relative;
+    background: transparent;
+}
+
+/* Специальные стили для кнопок редактирования */
+.deactivated-form .buttons-container {
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-sm) 0;
+    position: relative;
+    background: transparent;
+    filter: none !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+.deactivated-form .main-action-btn,
+.deactivated-form .switch-mode-btn {
+    filter: none !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    position: relative;
+    z-index: 10;
+}
+
+/* Специальные стили для активной кнопки переключения в деактивированной форме */
+.deactivated-form .switch-mode-btn:not(:disabled) {
+    background: linear-gradient(135deg, rgba(0,183,255,0.15) 0%, rgba(0,255,136,0.08) 100%) !important;
+    border-color: var(--primary-blue) !important;
+    color: var(--primary-blue) !important;
+    box-shadow: 0 4px 15px rgba(0, 183, 255, 0.2) !important;
+    transform: none !important;
+    filter: none !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+.deactivated-form .switch-mode-btn:not(:disabled):hover {
+    background: linear-gradient(135deg, rgba(0,183,255,0.25) 0%, rgba(0,255,136,0.15) 100%) !important;
+    border-color: var(--primary-blue) !important;
+    color: var(--primary-blue) !important;
+    box-shadow: 0 6px 20px rgba(0, 183, 255, 0.3) !important;
+    transform: translateY(-2px) scale(1.02) !important;
 }
 
 .main-action-btn {
     flex: 1;
-    background: linear-gradient(135deg, #00ff88, #00b7ff);
+    background: var(--gradient-primary);
     color: #000;
     border: none;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 600;
-    padding: 12px 20px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 10px 16px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all var(--transition-bounce);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0, 255, 136, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.2px;
+}
+
+.main-action-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.main-action-btn:hover::before {
+    left: 100%;
 }
 
 .main-action-btn:hover:not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 255, 136, 0.3);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 30px rgba(0, 255, 136, 0.5);
 }
 
 .main-action-btn:disabled {
@@ -352,29 +699,49 @@
     transform: none !important;
     box-shadow: none;
     border-color: rgba(255, 255, 255, 0.1);
+    opacity: 0.6;
 }
 
 .switch-mode-btn {
-    background: rgba(255, 255, 255, 0.05);
-    color: #00b7ff;
-    border: 1px solid rgba(0, 183, 255, 0.2);
-    border-radius: 6px;
-    min-width: 120px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
+    color: var(--primary-blue);
+    border: 2px solid rgba(0, 183, 255, 0.3);
+    border-radius: var(--radius-md);
+    min-width: 100px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    font-size: 14px;
-    font-weight: 500;
-    padding: 12px 20px;
+    gap: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px 16px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all var(--transition-bounce);
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+}
+
+.switch-mode-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 183, 255, 0.1), transparent);
+    transition: left 0.5s ease;
+}
+
+.switch-mode-btn:hover::before {
+    left: 100%;
 }
 
 .switch-mode-btn:hover:not(:disabled) {
-    background: rgba(0, 183, 255, 0.1);
-    border-color: #00b7ff;
-    transform: translateY(-1px);
+    background: linear-gradient(135deg, rgba(0,183,255,0.15) 0%, rgba(0,255,136,0.08) 100%);
+    border-color: var(--primary-blue);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 6px 25px rgba(0, 183, 255, 0.3);
 }
 
 .switch-mode-btn:disabled {
@@ -414,8 +781,6 @@
 
 .config-form-wrapper {
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    opacity: 0;
-    visibility: hidden;
     position: absolute;
     top: 0;
     left: 0;
@@ -488,7 +853,8 @@
         flex-direction: column;
         gap: 20px;
         max-width: 100%;
-        margin: 0 16px 40px 16px;
+        padding: 0 16px;
+        margin: 0 0 40px 0;
     }
     
     .config-content {
@@ -497,12 +863,15 @@
     
     .config-creation-card,
     .config-preview-section {
-        padding: 20px;
-        min-height: 450px;
+        padding: var(--spacing-md);
+        min-height: auto;
+        max-height: none;
         width: 100%;
         margin: 0;
         height: auto;
         flex: none;
+        overflow-y: visible;
+        border-radius: var(--radius-lg);
     }
     
     .card-title,
@@ -517,8 +886,8 @@
     
     .form-input,
     .form-select {
-        padding: 8px 12px;
-        font-size: 12px;
+        padding: 12px 14px;
+        font-size: 14px;
     }
     
     .config-preview {
@@ -555,24 +924,104 @@
     
     /* Mobile Buttons Container */
     .buttons-container {
-        gap: 12px;
-        padding: 12px 0 0 0;
+        gap: 8px;
+        padding: var(--spacing-sm) 0;
+        flex-wrap: nowrap;
+    }
+    
+    .main-action-btn {
+        padding: 10px 14px;
+        font-size: 12px;
     }
     
     .switch-mode-btn {
-        min-width: 80px;
-        font-size: 13px;
-        padding: 12px 16px;
+        min-width: auto;
+        font-size: 12px;
+        padding: 10px 12px;
+        flex-shrink: 0;
     }
     
     .switch-text {
         display: none;
     }
     
+    .switch-icon {
+        font-size: 16px;
+    }
+    
     /* Mobile Config Selector */
     .config-selector {
         padding: 10px;
         margin-bottom: 12px;
+    }
+    
+    /* Mobile Protocol Selector */
+    .protocol-selector {
+        padding: var(--spacing-sm);
+        margin-bottom: var(--spacing-md);
+        border-radius: var(--radius-lg);
+    }
+    
+    .protocol-title {
+        font-size: 0.9rem;
+        margin-bottom: var(--spacing-sm);
+    }
+    
+    .protocol-options {
+        flex-direction: row;
+        justify-content: center;
+        gap: var(--spacing-xs);
+        flex-wrap: wrap;
+    }
+    
+    .protocol-option {
+        padding: 6px 10px;
+        min-height: 45px;
+        gap: 2px;
+        width: calc(50% - 4px);
+        max-width: 140px;
+    }
+    
+    .protocol-icon {
+        font-size: 0.8rem;
+    }
+    
+    .protocol-name {
+        font-size: 0.65rem;
+    }
+    
+    .form-label {
+        font-size: 13px;
+    }
+    
+    /* Form group spacing adjustment */
+    .form-group {
+        margin-bottom: var(--spacing-md);
+    }
+    
+    .form-group:last-child {
+        margin-bottom: 0;
+    }
+    
+    /* Slider container adjustments */
+    .config-slider-container {
+        height: auto;
+        min-height: 400px;
+    }
+    
+    .config-form-wrapper {
+        position: relative;
+        transform: none;
+        height: auto;
+    }
+    
+    .config-form-wrapper.active {
+        transform: none;
+        position: relative;
+    }
+    
+    .config-form-wrapper.inactive {
+        display: none;
     }
 }
 
@@ -583,10 +1032,12 @@
     
     .config-header-content {
         padding: 0 12px;
+        gap: 12px;
     }
     
     .config-title-section {
         gap: 10px;
+        flex-wrap: wrap;
     }
     
     .server-flag {
@@ -596,7 +1047,7 @@
     
     .config-title {
         font-size: 1.3rem;
-        max-width: 150px;
+        max-width: calc(100% - 50px);
         flex-shrink: 1;
     }
     
@@ -607,100 +1058,390 @@
     .server-status-badge {
         padding: 4px 8px;
         gap: 6px;
+        font-size: 0.75rem;
     }
     
     .status-text {
-        font-size: 12px;
+        font-size: 11px;
     }
     
     .config-actions {
-        flex-direction: column;
+        flex-direction: row;
         gap: 8px;
+        flex-wrap: wrap;
     }
     
     .config-btn {
-        width: 100%;
+        flex: 1;
+        min-width: 120px;
         justify-content: center;
+        padding: 8px 12px;
+        font-size: 12px;
     }
     
     .config-content {
-        padding: 16px 12px;
+        padding: 16px 0;
+    }
+    
+    .config-grid {
+        padding: 0 12px;
+        gap: 16px;
     }
     
     .config-creation-card,
     .config-preview-section {
         padding: 16px;
-        min-height: 400px;
-        max-width: 100%;
-        margin: 0;
-        height: auto;
+        min-height: auto;
+        border-radius: var(--radius-md);
     }
     
     .card-title,
     .preview-title {
+        font-size: 1rem;
+        margin-bottom: 12px;
+    }
+    
+    .card-title-icon {
         font-size: 1.1rem;
     }
     
     .section-title {
-        font-size: 1.1rem;
+        font-size: 1rem;
+        margin-bottom: 10px;
+        padding-bottom: 8px;
+    }
+    
+    /* Protocol selector mobile optimization */
+    .protocol-selector {
+        padding: 12px;
         margin-bottom: 12px;
-        padding-bottom: 10px;
+    }
+    
+    .protocol-title {
+        font-size: 0.85rem;
+        margin-bottom: 8px;
+    }
+    
+    .protocol-options {
+        gap: 6px;
+    }
+    
+    .protocol-option {
+        padding: 8px;
+        min-height: 50px;
+        width: calc(50% - 3px);
+        max-width: none;
+    }
+    
+    .protocol-icon {
+        font-size: 1rem;
+    }
+    
+    .protocol-name {
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    /* Form elements */
+    .form-group {
+        margin-bottom: 12px;
+    }
+    
+    .form-label {
+        font-size: 12px;
+        margin-bottom: 6px;
+    }
+    
+    .form-label-icon {
+        font-size: 14px;
     }
     
     .form-input,
     .form-select {
-        padding: 8px 12px;
-        font-size: 12px;
+        padding: 10px 12px;
+        font-size: 14px;
+        border-radius: var(--radius-md);
     }
     
+    /* Preview section */
     .config-preview {
-        font-size: 12px;
-        padding: 16px;
-        max-height: 300px !important;
-        line-height: 1.5;
+        font-size: 11px;
+        padding: 12px;
+        max-height: 250px !important;
+        line-height: 1.4;
+        border-radius: var(--radius-md);
     }
     
     .config-preview.empty {
-        font-size: 14px;
-        padding: 20px;
+        font-size: 13px;
+        padding: 16px;
+        min-height: 120px;
     }
     
     .preview-title {
-        font-size: 1.2rem;
-        margin-bottom: 16px;
-        padding-bottom: 12px;
+        font-size: 1rem;
+        margin-bottom: 12px;
+        padding-bottom: 10px;
     }
     
     .preview-title span {
-        font-size: 1.3rem;
+        font-size: 1.1rem;
     }
     
-    /* Small Mobile Notification Styles */
+    /* Buttons optimization */
+    .buttons-container {
+        gap: 6px;
+        padding: 8px 0;
+        margin-top: 12px;
+    }
+    
+    .main-action-btn {
+        padding: 10px 12px;
+        font-size: 12px;
+    }
+    
+    .switch-mode-btn {
+        padding: 10px;
+        font-size: 12px;
+        min-width: 44px;
+    }
+    
+    /* Notifications */
     .notification {
         top: 5px !important;
         right: 5px !important;
         left: 5px !important;
-        padding: 10px 14px !important;
-        font-size: 12px !important;
-        border-radius: 8px !important;
+        padding: 8px 12px !important;
+        font-size: 11px !important;
+        border-radius: 6px !important;
     }
     
-    /* Small Mobile Buttons Container */
-    .buttons-container {
+    /* Config selector */
+    .config-selector {
+        padding: 8px;
+        margin-bottom: 10px;
+        font-size: 12px;
+    }
+    
+    /* Edit overlay */
+    .edit-overlay {
+        padding: 16px;
+        font-size: 0.85rem;
+    }
+    
+    .edit-return-btn {
+        padding: 8px 14px;
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 360px) {
+    .config-header-content {
+        padding: 0 8px;
+    }
+    
+    .config-title-section {
         gap: 8px;
-        padding: 10px 0 0 0;
+    }
+    
+    .server-flag {
+        width: 32px;
+        height: 24px;
+    }
+    
+    .config-title {
+        font-size: 1.1rem;
+    }
+    
+    .server-status-badge {
+        padding: 3px 6px;
+        gap: 4px;
+        font-size: 0.7rem;
+    }
+    
+    .status-dot {
+        width: 6px;
+        height: 6px;
+    }
+    
+    .status-text {
+        font-size: 10px;
+    }
+    
+    .config-btn {
+        padding: 6px 10px;
+        font-size: 11px;
+        min-width: 100px;
+    }
+    
+    .config-grid {
+        padding: 0 8px;
+        gap: 12px;
+    }
+    
+    .config-creation-card,
+    .config-preview-section {
+        padding: 12px;
+    }
+    
+    .card-title,
+    .preview-title {
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+    }
+    
+    /* Protocol options for very small screens */
+    .protocol-selector {
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+    
+    .protocol-title {
+        font-size: 0.8rem;
+        margin-bottom: 6px;
+    }
+    
+    .protocol-options {
+        gap: 4px;
+    }
+    
+    .protocol-option {
+        padding: 6px;
+        min-height: 45px;
+        width: calc(50% - 2px);
+    }
+    
+    .protocol-icon {
+        font-size: 0.9rem;
+    }
+    
+    .protocol-name {
+        font-size: 0.65rem;
+    }
+    
+    /* Form adjustments */
+    .form-group {
+        margin-bottom: 10px;
+    }
+    
+    .form-label {
+        font-size: 11px;
+        gap: 4px;
+    }
+    
+    .form-label-icon {
+        font-size: 12px;
+    }
+    
+    .form-input,
+    .form-select {
+        padding: 8px 10px;
+        font-size: 13px;
+    }
+    
+    /* Preview */
+    .config-preview {
+        font-size: 10px;
+        padding: 10px;
+        max-height: 200px !important;
+    }
+    
+    .config-preview.empty {
+        font-size: 12px;
+        padding: 12px;
+        min-height: 100px;
+    }
+    
+    /* Buttons */
+    .buttons-container {
+        gap: 4px;
+        padding: 6px 0;
+        margin-top: 10px;
+    }
+    
+    .main-action-btn {
+        padding: 8px 10px;
+        font-size: 11px;
     }
     
     .switch-mode-btn {
-        min-width: 60px;
-        font-size: 12px;
-        padding: 10px 12px;
+        padding: 8px;
+        min-width: 40px;
     }
     
-    /* Small Mobile Config Selector */
-    .config-selector {
+    .switch-icon {
+        font-size: 14px;
+    }
+    
+    /* Navigation buttons */
+    nav {
+        gap: 12px !important;
+        margin-bottom: 40px !important;
+        margin-top: 20px !important;
+        padding: 0 8px;
+    }
+    
+    .nav-button {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 320px) {
+    .config-page {
+        overflow-x: hidden;
+    }
+    
+    .config-header-content {
+        padding: 0 6px;
+    }
+    
+    .config-title {
+        font-size: 1rem;
+    }
+    
+    .config-btn {
+        padding: 6px 8px;
+        font-size: 10px;
+        min-width: 90px;
+    }
+    
+    .config-grid {
+        padding: 0 6px;
+    }
+    
+    .config-creation-card,
+    .config-preview-section {
         padding: 10px;
-        margin-bottom: 12px;
+    }
+    
+    .protocol-option {
+        padding: 4px;
+        min-height: 40px;
+    }
+    
+    .protocol-icon {
+        font-size: 0.8rem;
+    }
+    
+    .protocol-name {
+        font-size: 0.6rem;
+    }
+    
+    .form-input,
+    .form-select {
+        padding: 8px;
+        font-size: 12px;
+    }
+    
+    .main-action-btn {
+        padding: 8px;
+        font-size: 10px;
+    }
+    
+    .switch-mode-btn {
+        padding: 8px;
+        min-width: 36px;
     }
 }
 
@@ -763,21 +1504,19 @@
 }
 
 .config-form {
-    gap: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    flex: 1;
+    padding-bottom: 0;
+    min-height: auto;
+    justify-content: flex-start;
+    overflow: visible;
 }
 
-/* Loading Animation */
-@keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.7; }
-    100% { opacity: 1; }
-}
+/* Loading Animation - using components.css */
 
-/* Spinner Animation */
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
+/* Spinner Animation - using components.css */
 
 /* Notification Animations */
 @keyframes slideInRight {
@@ -808,13 +1547,235 @@
     border-left: 3px solid #00ff88;
 }
 
-/* Config Form */
-.config-form {
+/* Деактивированная форма (размытая) */
+.deactivated-form {
+    filter: grayscale(0.5) blur(2px);
+    opacity: 0.6;
+    background: linear-gradient(135deg, rgba(30,30,30,0.25) 0%, rgba(0,183,255,0.08) 100%);
+    border: 2px dashed #888;
+    box-shadow: 0 0 0 4px rgba(0,183,255,0.08);
+    pointer-events: none;
+    transition: filter 0.3s, opacity 0.3s, box-shadow 0.3s, border-color 0.3s;
+}
+
+.deactivated-form label,
+.deactivated-form input,
+.deactivated-form select,
+.deactivated-form .form-label {
+    cursor: not-allowed !important;
+}
+
+/* Для заголовка и селектора - чуть меньше размытие и больше контраст */
+.deactivated-form.deactivated-header {
+    filter: grayscale(0.2) blur(1px) brightness(0.8);
+    opacity: 0.7;
+    border: none;
+    background: none;
+    box-shadow: none;
+}
+
+/* Кнопки внутри размытой формы всегда четкие */
+.deactivated-form .config-btn,
+.deactivated-form .main-action-btn,
+.deactivated-form .switch-mode-btn {
+    filter: none !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    background: inherit;
+    box-shadow: inherit;
+}
+
+/* Edit mode overlay with return button */
+.edit-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(30,30,30,0.55);
+    z-index: 2;
     display: flex;
     flex-direction: column;
-    gap: 0;
-    flex: 1;
-    padding-bottom: 0;
-    min-height: 300px;
-    justify-content: flex-start;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+    pointer-events: auto;
+    border-radius: 8px;
+    text-align: center;
+    backdrop-filter: blur(2px);
+    text-shadow: 0 2px 8px #000, 0 0 2px #00b7ff;
+    gap: var(--spacing-md);
+}
+
+.edit-overlay-message {
+    margin: 0;
+}
+
+.edit-return-btn {
+    background: linear-gradient(135deg, rgba(0,183,255,0.15) 0%, rgba(0,255,136,0.08) 100%);
+    border: 2px solid var(--primary-blue);
+    border-radius: var(--radius-md);
+    color: var(--primary-blue);
+    padding: 10px 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-bounce);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 183, 255, 0.2);
+}
+
+.edit-return-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 183, 255, 0.1), transparent);
+    transition: left 0.5s ease;
+}
+
+.edit-return-btn:hover::before {
+    left: 100%;
+}
+
+.edit-return-btn:hover {
+    background: linear-gradient(135deg, rgba(0,183,255,0.25) 0%, rgba(0,255,136,0.15) 100%);
+    border-color: var(--primary-blue);
+    color: var(--primary-blue);
+    box-shadow: 0 6px 20px rgba(0, 183, 255, 0.3);
+    transform: translateY(-2px) scale(1.02);
+}
+
+.edit-return-btn {
+    padding: 8px 16px;
+    font-size: 0.8rem;
+}
+
+.edit-overlay {
+    gap: var(--spacing-sm);
+    font-size: 0.9rem;
+}
+
+/* Additional mobile optimizations */
+@media (max-width: 768px) {
+    /* Prevent horizontal scroll */
+    body {
+        overflow-x: hidden;
+    }
+    
+    /* Ensure all content stays within viewport */
+    .config-page {
+        overflow-x: hidden;
+        width: 100%;
+        max-width: 100vw;
+    }
+    
+    /* Fix navigation spacing */
+    nav {
+        padding: 0 16px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    
+    nav::-webkit-scrollbar {
+        display: none;
+    }
+    
+    /* Ensure form elements don't overflow */
+    .form-input,
+    .form-select {
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    /* Protocol options responsive grid */
+    .protocol-options {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 8px;
+    }
+    
+    .protocol-option {
+        width: 100%;
+        max-width: none;
+    }
+    
+    /* Ensure buttons stay within bounds */
+    .buttons-container {
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    /* Fix select dropdown arrow position */
+    .form-group:has(.form-select)::after {
+        right: 12px;
+        margin-top: 8px;
+    }
+    
+    /* Improve touch targets */
+    .form-input,
+    .form-select,
+    .config-btn,
+    .main-action-btn,
+    .switch-mode-btn,
+    .protocol-option {
+        min-height: 44px; /* iOS recommended touch target size */
+    }
+    
+    /* Better spacing for mobile */
+    .config-creation-card::before,
+    .config-preview-section::before {
+        height: 2px; /* Thinner accent line on mobile */
+    }
+    
+    /* Optimize animations for mobile */
+    * {
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    .protocol-option:active {
+        transform: scale(0.98);
+    }
+    
+    .config-btn:active,
+    .main-action-btn:active,
+    .switch-mode-btn:active {
+        transform: scale(0.98);
+    }
+}
+
+/* Landscape orientation fixes */
+@media (max-height: 500px) and (orientation: landscape) {
+    .config-header {
+        padding: 12px 0;
+    }
+    
+    nav {
+        margin-top: 16px !important;
+        margin-bottom: 24px !important;
+    }
+    
+    .config-grid {
+        gap: 12px;
+    }
+    
+    .config-creation-card,
+    .config-preview-section {
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+    
+    .config-preview {
+        max-height: 200px !important;
+    }
 }

@@ -25,3 +25,10 @@ class GetConfigsByConfigUUID(GetConfigStrategy):
 
     def query(self):
         return "SELECT * FROM configs WHERE config_uuid = $1"
+
+class GetConfigsByConfigID(GetConfigStrategy):
+    def __init__(self, identifier: int):
+        self.identifier = identifier
+
+    def query(self):
+        return "SELECT * FROM configs WHERE id = $1"

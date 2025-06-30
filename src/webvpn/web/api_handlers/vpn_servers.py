@@ -15,17 +15,34 @@ load_dotenv()
 vpn_servers_rt = APIRouter(prefix='/servers', tags=["VpnServer"])
 
 def find_client(client_name: str, clients_json: list[dict]) -> VpnServerClient | None:
-    for client in clients_json:
-        if client['name'] == client_name:
+    new_client = clients_json[-1]
+    if new_client['name'] == client_name:
+        return VpnServerClient(
+            latestHandshakeAt = new_client['latestHandshakeAt'],
+            transferRx = new_client['transferRx'],
+            transferTx = new_client['transferTx'],
+            createdAt = new_client['createdAt'],
+            updatedAt = new_client['updatedAt'],
+            enabled = new_client['enabled'],
+            user_id = new_client['id'],
+        )
+    idx_clients = len(clients_json)
+    while idx_clients != 0:
+        current_client = clients_json[idx_clients]
+        name = current_client['name']
+        if name == client_name:
             return VpnServerClient(
-                latestHandshakeAt = client['latestHandshakeAt'],
-                transferRx = client['transferRx'],
-                transferTx = client['transferTx'],
-                createdAt = client['createdAt'],
-                updatedAt = client['updatedAt'],
-                enabled = client['enabled'],
-                user_id = client['id'],
+                latestHandshakeAt = current_client['latestHandshakeAt'],
+                transferRx = current_client['transferRx'],
+                transferTx = current_client['transferTx'],
+                createdAt = current_client['createdAt'],
+                updatedAt = current_client['updatedAt'],
+                enabled = current_client['enabled'],
+                user_id = current_client['id'],
             )
+        
+        idx_clients -= 1
+
     return None
 
 

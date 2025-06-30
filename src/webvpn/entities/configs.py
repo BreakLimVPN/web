@@ -13,3 +13,8 @@ class VpnConfig:
     user_uuid: UUID
     created_at: datetime
     updated_at: datetime
+    
+
+@dataclass
+class RequestConfigToggle:
+    enabled: bool    
