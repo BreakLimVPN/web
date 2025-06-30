@@ -9,6 +9,7 @@ from webvpn.web.api_handlers.checkcode import checkcode_rt
 from webvpn.web.api_handlers.users import user_rt
 from webvpn.web.api_handlers.vpn_servers import vpn_servers_rt
 from webvpn.web.api_handlers.auth import auth_rt
+from webvpn.web.api_handlers.configs import config_rt
 
 # UI | Frontend
 ui_v1 = APIRouter(tags=["UI"])
@@ -21,5 +22,6 @@ api_v1.include_router(checkcode_rt)
 api_v1.include_router(user_rt)
 api_v1.include_router(vpn_servers_rt)
 api_v1.include_router(auth_rt)
+api_v1.include_router(config_rt)
 
 routers = [ui_v1, api_v1]
