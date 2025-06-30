@@ -24,6 +24,9 @@ start:
 start-dev:
 	@fastapi dev src/webvpn --reload
 
+start-prod:
+	@gunicorn -w 4 -k uvicorn.workers.UvicornWorker --pythonpath src src.webvpn.app:app --bind 0.0.0.0:8000
+
 silent-start:
 	@fastapi run src/webvpn --reload > /dev/null 2>&1 & \
 	echo "Server Starting.." && \
